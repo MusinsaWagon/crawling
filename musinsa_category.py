@@ -34,49 +34,41 @@ def extract_product_info(product):
         'Image_URL': img_url
     }
 
+def scroll_and_load_products(driver, target_count=100):
+    product_list = []
+    while len(product_list) < target_count:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)  # 새로운 상품이 로드될 때까지 잠시 대기
+
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'lxml')
+        products = soup.select('div.category__sc-rb2kzk-0.irgXw')
+        
+        new_products = [extract_product_info(product) for product in products[len(product_list):]]
+        product_list.extend(new_products)
+
+        if len(new_products) == 0:
+            break  # 더 이상 로드할 상품이 없으면 종료
+    
+    return product_list[:target_count]
+
 def main():
-    # 현재 파일의 디렉토리 경로를 얻음
+    url = 'https://www.musinsa.com/categories/item/002025?device=mw&sortCode=1y'
     current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # ChromeDriver 경로 설정 (코드 파일과 같은 폴더에 있는 chromedriver)
     chromedriver_path = os.path.join(current_dir, 'chromedriver')
-
-    # Selenium 드라이버 설정
     driver = setup_driver(chromedriver_path)
     
     try:
-        driver.get('https://www.musinsa.com/categories/item/003?device=mw&sortCode=1y')
+        driver.get(url)
+        time.sleep(5)  # 초기 페이지 로드 대기
 
-        # 페이지가 로드될 때까지 대기
-        time.sleep(5)
+        product_list = scroll_and_load_products(driver)
 
-        # 동적으로 로드된 HTML 가져오기
-        html = driver.page_source
-
-        # BeautifulSoup으로 HTML 파싱
-        soup = BeautifulSoup(html, 'lxml')
-
-        # 특정 섹션 내의 특정 클래스명을 가진 div 요소 찾기
-        products = soup.select('div.category__sc-rb2kzk-0.irgXw')
-
-        # 인기상품 리스트를 담을 리스트 초기화
-        product_list = []
-
-        for product in products:
-            product_info = extract_product_info(product)
-            product_list.append(product_info)
-
-        # 데이터프레임으로 변환
         df = pd.DataFrame(product_list)
-
-        # 결과 출력
         print(df)
-
-        # 엑셀 파일로 저장
         df.to_excel('musinsa_top_100_products.xlsx', index=False)
-
+    
     finally:
-        # 브라우저 닫기
         driver.quit()
 
 if __name__ == "__main__":
