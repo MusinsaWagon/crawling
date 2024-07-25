@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from bs4 import BeautifulSoup
+import re
 
 def setup_driver(chromedriver_path):
     options = webdriver.ChromeOptions()
@@ -24,6 +25,13 @@ def extract_product_info(product):
     price_tag = product.select_one('div[class*="category__sc-79f6w4-4"] span')
     price = price_tag.get_text(strip=True).replace(',', '').split('원')[0] if price_tag else 'N/A'
 
+    like_tag = product.select_one('div[class*="category__sc-rb2kzk-15"]')
+    if like_tag:
+        like_text = like_tag.get_text(strip=True).replace(',', '')
+        like = re.search(r'\d+', like_text).group() if re.search(r'\d+', like_text) else 'N/A'
+    else:
+        like = 'N/A'
+        
     img_tag = product.select_one('img')
     img_url = img_tag['src'] if img_tag else 'N/A'
 
@@ -31,6 +39,7 @@ def extract_product_info(product):
         'Name': name,
         'Brand': brand,
         'Price': price,
+        'Like' : like,
         'Image_URL': img_url
     }
 
