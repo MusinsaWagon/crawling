@@ -22,12 +22,17 @@ def extract_product_info(soup):
     brand = brand_tag.get_text(strip=True) if brand_tag else 'N/A'
 
     price_tag = soup.find('span', class_='sc-f0xecg-5')
-    price = price_tag.get_text(strip=True).replace(',', '').replace('원', '') if price_tag else 'N/A'
+    # price = price_tag.get_text(strip=True).replace(',', '').replace('원', '') if price_tag else 'N/A'
+    if price_tag:
+        price_text = price_tag.get_text(strip=True).replace(',', '').replace('원', '')
+        prices = [int(price) for price in price_text.split('~')]
+        price = str(max(prices))
+    else:
+        price = 'N/A'
 
     img_tag = soup.find('img', class_='sc-1jl6n79-4')
     img_url = img_tag['src'] if img_tag else 'N/A'
 
-    soup.select_one('img')['src']
     like_tag = soup.find('span', class_='cIxZGm')
     like_text = like_tag.get_text(strip=True).replace(',', '') if like_tag else 'N/A'
     like_count = ''.join(filter(str.isdigit, like_text))  # 숫자만 추출
@@ -48,7 +53,7 @@ def main():
     
     try:
         driver.get(url)
-        time.sleep(3)  # 페이지가 완전히 로드될 때까지 대기
+        time.sleep(0)  # 페이지가 완전히 로드될 때까지 대기
 
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
@@ -58,7 +63,7 @@ def main():
         # 결과 출력
         print(f'상품 이름: {product_info["Name"]}')
         print(f'브랜드: {product_info["Brand"]}')
-        print(f'상품 가격: {product_info["Price"]} 원')
+        print(f'상품 가격: {product_info["Price"]}')
         print(f'상품 이미지 URL: {product_info["Image_URL"]}')
         print(f'좋아요 수: {product_info["Like"]}')
 
