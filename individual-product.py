@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from driver_setup import setup_driver  
 
 
-def extract_product_info(soup):
+def extract_product_info(soup, product_url):
     name_tag = soup.find('h2', class_='sc-1pxf5ii-2 fIpPKc')
     name = name_tag.get_text(strip=True) if name_tag else 'N/A'
 
@@ -33,17 +33,18 @@ def extract_product_info(soup):
     return {
         'Name': name,
         'Brand': brand,
+        'Product_URL' : product_url,
         'Price': price,
         'Like': like_count,
         'Image_URL': img_url
     }
 
 def get_individual_product_info(chromedriver_path, product_num):
-    url = f'https://www.musinsa.com/app/goods/{product_num}'
+    product_url = f'https://www.musinsa.com/app/goods/{product_num}'
     driver = setup_driver(chromedriver_path)
     
     try:
-        driver.get(url)
+        driver.get(product_url)
         WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'sc-1pxf5ii-2'))  # 원하는 요소의 클래스 이름
         )
@@ -51,7 +52,7 @@ def get_individual_product_info(chromedriver_path, product_num):
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
 
-        product_info = extract_product_info(soup)
+        product_info = extract_product_info(soup, product_url)
     
         return product_info
 
@@ -67,6 +68,7 @@ def fetch_product_info(products_num, chromedriver_path):
             print(f'상품 이름: {product_info["Name"]}')
             print(f'브랜드: {product_info["Brand"]}')
             print(f'상품 가격: {product_info["Price"]}')
+            print(f'상품 URL: {product_info["Product_URL"]}')
             print(f'상품 이미지 URL: {product_info["Image_URL"]}')
             print(f'좋아요 수: {product_info["Like"]}')
 
@@ -80,6 +82,7 @@ def main():
     products_num = read_product_numbers(products_file)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     chromedriver_path = os.path.join(current_dir, 'chromedriver')
+    
     start_time = time.time()  # 시작 시간 기록
     fetch_product_info(products_num, chromedriver_path)
     end_time = time.time()
