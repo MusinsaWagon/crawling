@@ -46,7 +46,10 @@ def get_individual_product_info(chromedriver_path, product_num):
     try:
         driver.get(product_url)
         WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'sc-1pxf5ii-2'))  # 원하는 요소의 클래스 이름
+            EC.presence_of_element_located((By.CLASS_NAME, 'sc-1pxf5ii-2'))  # 이름 요소 기다림
+        )
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'cIxZGm')) # 좋아요 요소 기다림
         )
 
         html = driver.page_source
