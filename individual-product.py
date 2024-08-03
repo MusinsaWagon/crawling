@@ -5,8 +5,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import os
 from concurrent.futures import ThreadPoolExecutor
-from multiprocessing import Pool
 from driver_setup import setup_driver  
+from multiprocessing import Pool, cpu_count
+
 
 def extract_product_info(soup, product_url):
     name_tag = soup.find('h2', class_='sc-1pxf5ii-2 fIpPKc')
@@ -33,7 +34,7 @@ def extract_product_info(soup, product_url):
     return {
         'Name': name,
         'Brand': brand,
-        'Product_URL': product_url,
+        'Product_URL' : product_url,
         'Price': price,
         'Like': like_count,
         'Image_URL': img_url
@@ -45,11 +46,11 @@ def get_individual_product_info(chromedriver_path, product_num):
     
     try:
         driver.get(product_url)
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'sc-1pxf5ii-2'))  # 이름 요소 기다림
         )
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_all_elements_located((By.CLASS_NAME, 'cIxZGm'))  # 좋아요 요소 기다림
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CLASS_NAME, 'cIxZGm')) # 좋아요 요소 기다림
         )
 
         html = driver.page_source
@@ -62,31 +63,22 @@ def get_individual_product_info(chromedriver_path, product_num):
     finally:
         driver.quit()
 
-def fetch_product_info_thread(chromedriver_path, products_num):
+def fetch_product_info_multithread(products_num, chromedriver_path):
     products_info = []  # 상품 정보를 저장할 리스트
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = [executor.submit(get_individual_product_info, chromedriver_path, product) for product in products_num]
         for future in futures:
-            try:
-                product_info = future.result()
-                products_info.append(product_info)  # 결과를 리스트에 추가
-            except Exception as e:
-                print(f"Error fetching product info: {e}")
+            product_info = future.result()
+            products_info.append(product_info)  # 결과를 리스트에 추가
+        
     return products_info
 
 def fetch_product_info_multiprocess(products_num, chromedriver_path):
-    # 각 프로세스에 할당할 작업 분배
-    num_processes = 3  # 프로세스 수를 3개로 제한
-    chunk_size = len(products_num)
-    chunks = [products_num[i:i + chunk_size] for i in range(0, len(products_num), chunk_size)]
-    
-    with Pool(processes=num_processes) as pool:
-        product_info_list = pool.starmap(fetch_product_info_thread, [(chromedriver_path, chunk) for chunk in chunks])
-    
-    # 각 프로세스의 결과를 병합
-    merged_product_info = [item for sublist in product_info_list for item in sublist]
-    return merged_product_info
+    with Pool(processes=cpu_count()) as pool:
+        product_info_list = pool.starmap(get_individual_product_info, [(chromedriver_path, product) for product in products_num])
+    return product_info_list
 
+    
 def print_product_data(products_info):
     # 결과 출력
     for product_info in products_info:
@@ -107,12 +99,14 @@ def main():
     products_num = read_product_numbers(products_file)
     current_dir = os.path.dirname(os.path.abspath(__file__))
     chromedriver_path = os.path.join(current_dir, 'chromedriver')
-    
+ 
+   
     start_time = time.time()  # 시작 시간 기록
-    product_info = fetch_product_info_multiprocess(products_num, chromedriver_path)
+    product_info = fetch_product_info_multithread(products_num, chromedriver_path)
     print_product_data(product_info)
     end_time = time.time()
     print(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
 
 if __name__ == "__main__":
     main()
+
