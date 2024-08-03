@@ -5,15 +5,7 @@ from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
-
-def setup_driver(chromedriver_path):
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # 브라우저 창을 표시하지 않음
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    service = Service(executable_path=chromedriver_path)
-    driver = webdriver.Chrome(service=service, options=options)
-    return driver
+from driver_setup import setup_driver  
 
 def extract_product_info(product):
     name_tag = product.select_one('div[class*="category__sc-rb2kzk-10"] a:nth-of-type(2)')
@@ -63,6 +55,7 @@ def scroll_and_load_products(driver, target_count=100):
 
 def main():
     url = 'https://www.musinsa.com/categories/item/002025?device=mw&sortCode=1y'
+    item_count = 100 # 크롤링 할 상품의 수
     current_dir = os.path.dirname(os.path.abspath(__file__))
     chromedriver_path = os.path.join(current_dir, 'chromedriver')
     driver = setup_driver(chromedriver_path)
@@ -71,7 +64,7 @@ def main():
         driver.get(url)
         time.sleep(5)  # 초기 페이지 로드 대기
 
-        product_list = scroll_and_load_products(driver)
+        product_list = scroll_and_load_products(driver, item_count)
 
         df = pd.DataFrame(product_list)
         print(df)
