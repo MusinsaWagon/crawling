@@ -26,3 +26,5 @@ replay_pid*
 *.xlxs 
 
 .env
+*.txt
+chromedriver
