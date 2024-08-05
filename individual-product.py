@@ -7,6 +7,9 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from driver_setup import setup_driver  
 from multiprocessing import Pool, cpu_count
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
 def extract_product_info(soup, product_url):
@@ -100,7 +103,6 @@ def main():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     chromedriver_path = os.path.join(current_dir, 'chromedriver')
  
-   
     start_time = time.time()  # 시작 시간 기록
     product_info = fetch_product_info_multithread(products_num, chromedriver_path)
     print_product_data(product_info)
@@ -109,4 +111,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
