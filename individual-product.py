@@ -139,7 +139,7 @@ def main():
     product_info = fetch_product_info_multithread(products_num, chromedriver_path)
     print_product_data(product_info)
     end_time = time.time()
-    print(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
+    logging.info(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
 
     save_to_database(product_info)
     
