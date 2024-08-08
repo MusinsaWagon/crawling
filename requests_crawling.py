@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
+USER_AGENT = os.getenv("USER_AGENT")
 
 def read_product_numbers(file_path):
     try:
@@ -52,7 +53,7 @@ def main():
         return
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'User-Agent': f'{USER_AGENT}',
         "Connection": "close"
     }
     
