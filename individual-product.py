@@ -10,11 +10,16 @@ from multiprocessing import Pool, cpu_count
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 from config.mysql import Session, Product
+import logging
+from config.log import *
 
 load_dotenv() # 환경변수 로딩
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
+LOG_FILE = os.getenv("LOG_FILE")
+PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
+CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
 def save_to_database(products_info):
     session = Session()
@@ -33,7 +38,7 @@ def save_to_database(products_info):
                 session.add(new_product)
     except Exception as e:
         session.rollback()
-        print(f"초기 상품 저장 오류: {e}")
+        logging.error(f"초기 상품 저장 오류: {e}")
     
 def extract_product_info(soup, product_num):
     name_tag = soup.find('h2', class_='sc-1pxf5ii-2 fIpPKc')
@@ -64,7 +69,7 @@ def extract_product_info(soup, product_num):
         'current_price': price,
         'like_count': like_count,
         'image_url': img_url,
-        'product_url' : MUSINSA_PRODUCT_URL + "/" +product_num,
+        'product_url' : MUSINSA_PRODUCT_URL + "/" + product_num,
     }
 
 def get_individual_product_info(chromedriver_path, product_num):
@@ -82,7 +87,6 @@ def get_individual_product_info(chromedriver_path, product_num):
 
         html = driver.page_source
         soup = BeautifulSoup(html, 'lxml')
-
         product_info = extract_product_info(soup, product_num)
     
         return product_info
@@ -109,24 +113,27 @@ def fetch_product_info_multiprocess(products_num, chromedriver_path):
 def print_product_data(products_info):
     # 결과 출력
     for product_info in products_info:
-        
-        print(f'상품 이름: {product_info["name"]}')
-        print(f'브랜드: {product_info["brand"]}')
-        print(f'상품 가격: {product_info["current_price"]}')
-        print(f'상품 URL: {product_info["product_url"]}')
-        print(f'상품 이미지 URL: {product_info["image_url"]}')
-        print(f'좋아요 수: {product_info["like_count"]}')
-        print("---------------------------------------")
+        logging.info(f'상품 번호: {product_info["product_id"]}')
+        logging.info(f'상품 이름: {product_info["name"]}')
+        logging.info(f'브랜드: {product_info["brand"]}')
+        logging.info(f'상품 가격: {product_info["current_price"]}')
+        logging.info(f'상품 URL: {product_info["product_url"]}')
+        logging.info(f'상품 이미지 URL: {product_info["image_url"]}')
+        logging.info(f'좋아요 수: {product_info["like_count"]}')
+        logging.info("---------------------------------------")
 
 def read_product_numbers(file_path):
-    with open(file_path, 'r') as file:
-        products_num = [line.strip() for line in file if line.strip().isdigit()]
-    return products_num
-
+    try:
+        with open(file_path, 'r') as file:
+            products_num = [line.strip() for line in file if line.strip().isdigit()]
+        return products_num
+    except FileNotFoundError:
+        logging.error(f"파일을 찾을 수 없습니다: {file_path}")
+        return []
+    
 def main():
-    products_file = './etc/individual_products.txt'
-    products_num = read_product_numbers(products_file)
-    chromedriver_path = './etc/chromedriver'
+    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
+    chromedriver_path = f'{CHROMEDRIVER_PATH}'
  
     start_time = time.time()  # 시작 시간 기록
     product_info = fetch_product_info_multithread(products_num, chromedriver_path)

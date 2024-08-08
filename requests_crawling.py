@@ -13,7 +13,7 @@ load_dotenv()  # 환경변수 로딩
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 USER_AGENT = os.getenv("USER_AGENT")
 LOG_FILE = os.getenv("LOG_FILE")
-PRODUCTS_FILE = os.getenv("PRODUCTS_FILE")
+PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 
 def read_product_numbers(file_path):
     try:
@@ -45,7 +45,7 @@ def fetch_price(product_id, headers):
         return 'N/A'
 
 def main():
-    products_num = read_product_numbers(f'{PRODUCTS_FILE}')
+    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
     
     if not products_num:
         logging.info("상품 번호가 없습니다. 프로그램을 종료합니다.")
