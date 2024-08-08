@@ -9,7 +9,9 @@ import logging
 load_dotenv()  # 환경변수 로딩
 
 # 로깅 설정
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+log_filename = "./etc/error_log.log"
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
+                    handlers=[logging.FileHandler(log_filename), logging.StreamHandler()])
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
