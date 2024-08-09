@@ -29,7 +29,7 @@ def save_to_database(products_info):
                 new_product = Product(
                     name=product['name'],
                     brand=product['brand'],
-                    category_id=1,  # 예시로 카테고리 ID를 1로 설정
+                    category_id=1, 
                     product_id=int(product['product_id']),
                     img_url=product['image_url'],
                     product_url=product['product_url'],
