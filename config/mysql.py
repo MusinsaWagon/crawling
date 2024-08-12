@@ -1,9 +1,11 @@
 import os
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, BigInteger, Enum
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, BigInteger, Enum, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import NoResultFound
 from dotenv import load_dotenv
 import datetime
+from config.log import *
 
 Base = declarative_base()
 load_dotenv() # 환경변수 로딩
@@ -34,5 +36,45 @@ class Product(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+class Category(Base):
+    __tablename__ = 'category'
+    
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    parent_category_id = Column(BigInteger, ForeignKey('category.id'), nullable=True)
+    category_name = Column(String(50), nullable=False, unique=True)
+
+
+
 # 테이블 생성
 Base.metadata.create_all(engine)
+
+
+def save_to_database(products_info):
+    session = Session()
+    try:
+        with session.begin():
+            for product in products_info:
+                new_product = Product(
+                    name=product['name'],
+                    brand=product['brand'],
+                    category_id=1, 
+                    product_id=int(product['product_id']),
+                    img_url=product['image_url'],
+                    product_url=product['product_url'],
+                    current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
+                )
+                session.add(new_product)
+    except Exception as e:
+        session.rollback()
+        logging.error(f"초기 상품 저장 오류: {e}")
+
+def get_or_create_category(session, category_name):
+    try:
+        category = session.query(Category).filter_by(category_name=category_name).one()
+    except NoResultFound:
+        new_category = Category(category_name=category_name)
+        session.add(new_category)
+        session.commit()
+        category = new_category
+    
+    return category.id

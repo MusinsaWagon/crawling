@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from config.mysql import Session, Product
 import logging
 from config.log import *
-
+from config.mysql import *
 load_dotenv() # 환경변수 로딩
 
 # 무신사 상품 기본 URL
@@ -20,25 +20,6 @@ MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
-
-def save_to_database(products_info):
-    session = Session()
-    try:
-        with session.begin():
-            for product in products_info:
-                new_product = Product(
-                    name=product['name'],
-                    brand=product['brand'],
-                    category_id=1, 
-                    product_id=int(product['product_id']),
-                    img_url=product['image_url'],
-                    product_url=product['product_url'],
-                    current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
-                )
-                session.add(new_product)
-    except Exception as e:
-        session.rollback()
-        logging.error(f"초기 상품 저장 오류: {e}")
 
 def extract_product_info(soup, product_num):
     name_tag = soup.find('h2', class_='sc-1pxf5ii-2 fIpPKc')
