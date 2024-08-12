@@ -21,7 +21,7 @@ LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
-def extract_product_info(soup, product_num):
+def extract_musinsa_product_main_info(soup, product_num):
     name_tag = soup.find('h2', class_='sc-1pxf5ii-2 fIpPKc')
     name = name_tag.get_text(strip=True) if name_tag else 'N/A'
 
@@ -44,10 +44,6 @@ def extract_product_info(soup, product_num):
     img_tag = soup.find('img', class_='sc-1jl6n79-4')
     img_url = img_tag['src'] if img_tag else 'N/A'
 
-    like_tag = soup.find('span', class_='cIxZGm')
-    like_text = like_tag.get_text(strip=True).replace(',', '') if like_tag else 'N/A'
-    like_count = ''.join(filter(str.isdigit, like_text))  # 숫자만 추출
-
     return {
         'name': name,
         'brand': brand,
@@ -55,21 +51,46 @@ def extract_product_info(soup, product_num):
         'category' : category,
         'product_id' : product_num,
         'current_price': price,
-        'like_count': like_count,
         'image_url': img_url,
         'product_url' : MUSINSA_PRODUCT_URL + "/" + product_num,
     }
 
-def get_individual_product_info(chromedriver_path, product_num):
+def extract_musinsa_product_side_info(soup, product_num):
+    like_tag = soup.find('span', class_='cIxZGm')
+    like_text = like_tag.get_text(strip=True).replace(',', '') if like_tag else 'N/A'
+    like_count = ''.join(filter(str.isdigit, like_text))  # 숫자만 추출
+    
+    star_tag = soup.find('p', class_='sc-qc190r-3')
+    star_count = float(star_tag.get_text(strip=True)) if star_tag else 0.0
+    
+    review_tag = soup.find('p', class_='sc-qc190r-4 jmQzBL')
+    review_count = ''.join(filter(str.isdigit, review_tag.get_text(strip=True))) if review_tag else '0'
+    review_count = int(review_count) if review_count else 0
+    
+    return {
+        'like_count' : like_count,
+        'star_count' : star_count,
+        'review_count' : review_count
+    }
+    
+    
+def extract_product_info(soup, product_num):
+    noraml_info = extract_musinsa_product_main_info(soup, product_num)
+    side_info = extract_musinsa_product_side_info(soup, product_num)
+    
+    noraml_info.update(side_info)
+    
+    return noraml_info
+
+def get_individual_product_info(driver, product_num):
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
-    driver = setup_driver(chromedriver_path)
     
     try:
         driver.get(product_url)
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'sc-1pxf5ii-2'))  # 이름 요소 기다림
         )
-        WebDriverWait(driver, 10).until(
+        WebDriverWait(driver, 5).until(
             EC.presence_of_all_elements_located((By.CLASS_NAME, 'cIxZGm')) # 좋아요 요소 기다림
         )
 
@@ -78,17 +99,24 @@ def get_individual_product_info(chromedriver_path, product_num):
         product_info = extract_product_info(soup, product_num)
     
         return product_info
+    
+    except Exception as e:
+        logging.error(f'Error fetching product {product_num}: {str(e)}')
+        return None
 
-    finally:
-        driver.quit()
 
 def fetch_product_info_multithread(products_num, chromedriver_path):
     products_info = []  # 상품 정보를 저장할 리스트
+    driver = setup_driver(chromedriver_path)
+    
     with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(get_individual_product_info, chromedriver_path, product_num) for product_num in products_num]
+        futures = [executor.submit(get_individual_product_info, driver, product_num) for product_num in products_num]
         for future in futures:
             product_info = future.result()
-            products_info.append(product_info)  # 결과를 리스트에 추가
+            if product_info:
+                products_info.append(product_info)  # 결과를 리스트에 추가
+
+    driver.quit()
     return products_info
 
 def fetch_product_info_multiprocess(products_num, chromedriver_path):
@@ -96,7 +124,8 @@ def fetch_product_info_multiprocess(products_num, chromedriver_path):
         product_info_list = pool.starmap(get_individual_product_info, [(chromedriver_path, product) for product in products_num])
     return product_info_list
     
-def print_product_data(products_info):
+
+def print_product_main_data(products_info):
     # 결과 출력
     for product_info in products_info:
         logging.info(f'상품 번호: {product_info["product_id"]}')
@@ -107,8 +136,15 @@ def print_product_data(products_info):
         logging.info(f'상품 가격: {product_info["current_price"]}')
         logging.info(f'상품 URL: {product_info["product_url"]}')
         logging.info(f'상품 이미지 URL: {product_info["image_url"]}')
-        logging.info(f'좋아요 수: {product_info["like_count"]}')
         logging.info("---------------------------------------")
+        
+def print_product_side_data(products_info):
+    for product_info in products_info:
+        logging.info(f'좋아요 수: {product_info["like_count"]}')
+        logging.info(f'별점: {product_info["star_count"]}')
+        logging.info(f'리뷰 수: {product_info["review_count"]}')
+        logging.info("---------------------------------------")
+        
 
 def read_product_numbers(file_path):
     try:
@@ -125,11 +161,16 @@ def main():
  
     start_time = time.time()  # 시작 시간 기록
     product_info = fetch_product_info_multithread(products_num, chromedriver_path)
-    print_product_data(product_info)
     end_time = time.time()
     logging.info(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
 
-    save_to_database(product_info)
+    # print_product_main_data(product_info)
+    # print_product_side_data(product_info)
+    # save_to_database(product_info)
     
 if __name__ == "__main__":
     main()
+    
+    
+    
+    
