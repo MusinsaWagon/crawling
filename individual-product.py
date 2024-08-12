@@ -9,7 +9,6 @@ from driver_setup import setup_driver
 from multiprocessing import Pool, cpu_count
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
-from config.mysql import Session, Product
 import logging
 from config.log import *
 from config.mysql import *
@@ -167,7 +166,7 @@ def main():
     
     # print_product_main_data(product_info)
     # print_product_side_data(product_info)
-    # save_to_database(product_info)
+    save_product_info(product_info)
     
 if __name__ == "__main__":
     main()
