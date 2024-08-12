@@ -5,7 +5,7 @@ from config.mysql import Base
 from config.mysql import Session
 from models.category import get_or_create_category
 from models.musinsa import create_musinsa
-# from models.product_history import create_musinsa_history
+from models.product_history import create_musinsa_history
 
 class Product(Base):
     __tablename__ = 'product'
@@ -64,7 +64,9 @@ def save_product_info(products_info):
                 new_musinsa = create_musinsa(product, new_product.id)
                 session.add(new_musinsa)
                 
-                # new_musinsa_history = 
+                new_musinsa_history = create_musinsa_history(product, new_product.id)
+                session.add(new_musinsa_history)
+                
     except Exception as e:
         session.rollback()
         logging.error(f"초기 상품 저장 오류: {e}")
