@@ -82,8 +82,9 @@ def extract_product_info(soup, product_num):
     
     return noraml_info
 
-def get_individual_product_info(driver, product_num):
+def get_individual_product_info(chromedriver_path, product_num):
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
+    driver = setup_driver(chromedriver_path)
     
     try:
         driver.get(product_url)
@@ -103,21 +104,21 @@ def get_individual_product_info(driver, product_num):
     except Exception as e:
         logging.error(f'Error fetching product {product_num}: {str(e)}')
         return None
+    finally:
+        driver.quit()
 
 
 def fetch_product_info_multithread(products_num, chromedriver_path):
     products_info = []  # 상품 정보를 저장할 리스트
-    driver = setup_driver(chromedriver_path)
-    
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(get_individual_product_info, driver, product_num) for product_num in products_num]
+    with ThreadPoolExecutor(max_workers=cpu_count()) as executor:
+        futures = [executor.submit(get_individual_product_info, chromedriver_path, product_num) for product_num in products_num]
         for future in futures:
             product_info = future.result()
             if product_info:
                 products_info.append(product_info)  # 결과를 리스트에 추가
-
-    driver.quit()
+                
     return products_info
+
 
 def fetch_product_info_multiprocess(products_num, chromedriver_path):
     with Pool(processes=cpu_count()) as pool:
@@ -163,7 +164,7 @@ def main():
     product_info = fetch_product_info_multithread(products_num, chromedriver_path)
     end_time = time.time()
     logging.info(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
-
+    
     # print_product_main_data(product_info)
     # print_product_side_data(product_info)
     # save_to_database(product_info)
