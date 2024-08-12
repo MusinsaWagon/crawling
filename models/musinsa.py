@@ -1,8 +1,6 @@
-from sqlalchemy import Column, Integer, Float
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, BigInteger, ForeignKey, Float
-from sqlalchemy.ext.declarative import declarative_base
-from config.models import Base
+from config.mysql import Base
+import logging
 
 class Musinsa(Base):
     __tablename__ = 'musinsa'
@@ -12,3 +10,24 @@ class Musinsa(Base):
     rating = Column(Float, nullable=True)
     review_count = Column(Integer, nullable=True)
     like_count = Column(Integer, nullable=True)
+    
+def create_musinsa(product, new_product_id):
+    try:
+        rating = float(product.get('star_count', 0.0))
+        review_count = int(product.get('review_count', 0))
+        like_count = int(product.get('like_count', 0))
+
+        return Musinsa(
+            product_id=new_product_id,  
+            rating=rating,
+            review_count=review_count,
+            like_count=like_count
+        )
+    except (ValueError, TypeError) as e:
+        logging.error(f"Musinsa 생성 중 데이터 변환 오류 발생: {e} - 데이터: {product}")
+        return None
+    
+    except Exception as e:
+        logging.error(f"Musinsa 생성 중 알 수 없는 오류 발생: {e}")
+        return None
+    

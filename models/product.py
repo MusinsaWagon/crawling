@@ -1,10 +1,11 @@
-from sqlalchemy import Column, Integer, String, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, BigInteger, ForeignKey, Float
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger
 import datetime
-from config.log import *
-from config.models import Base
+import logging
+from config.mysql import Base
+from config.mysql import Session
+from models.category import get_or_create_category
+from models.musinsa import create_musinsa
+# from models.product_history import create_musinsa_history
 
 class Product(Base):
     __tablename__ = 'product'
@@ -19,3 +20,55 @@ class Product(Base):
     current_price = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    
+def create_product(product):
+    try:
+        product_name = product['name']
+        brand = product['brand']
+        product_id = int(product['product_id'])  
+        category_id = get_or_create_category(product['category'], product['parent_category'])
+        img_url=product['image_url'],
+        product_url=product['product_url'],
+        current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
+        
+        # Product 객체 생성
+        new_product = Product(
+            name=product_name,
+            brand=brand,
+            category_id=category_id,
+            product_id=product_id,
+            img_url=img_url,
+            product_url=product_url,
+            current_price=current_price
+        )
+        return new_product
+
+    except KeyError as e:
+        logging.error(f"product 생성 중 상 누락 발생: {e}")
+        raise
+
+    except Exception as e:
+        logging.error(f"상품 생성 중 오류 발생: {e}")
+        return None
+    
+def save_product_info(products_info):
+    session = Session()
+    try:
+        with session.begin():
+            for product in products_info:
+                # Product 생성
+                new_product = create_product(product)
+                session.add(new_product)
+                session.flush()  # ID를 얻기 위해 flush 수행
+                
+                new_musinsa = create_musinsa(product, new_product.id)
+                session.add(new_musinsa)
+                
+                # new_musinsa_history = 
+    except Exception as e:
+        session.rollback()
+        logging.error(f"초기 상품 저장 오류: {e}")
+    finally:
+        session.close()
+
+

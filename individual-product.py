@@ -7,11 +7,12 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from driver_setup import setup_driver  
 from multiprocessing import Pool, cpu_count
-from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
 import logging
 from config.log import *
 from config.mysql import *
+from models.product import save_product_info
+
 load_dotenv() # 환경변수 로딩
 
 # 무신사 상품 기본 URL
