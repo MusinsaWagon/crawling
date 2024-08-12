@@ -28,8 +28,10 @@ def extract_product_info(soup, product_num):
     brand_tag = soup.find('a', class_="sc-18j0po5-6")
     brand = brand_tag.get_text(strip=True) if brand_tag else 'N/A'
 
-    category_tag = soup.find('a', class_="sc-887fco-1")
-    category = category_tag.get_text(strip=True) if category_tag else 'N/A'
+    category_tags = soup.find_all('a', class_="sc-887fco-1")
+    
+    parent_category = category_tags[0].get_text(strip=True) if len(category_tags) > 0 else 'N/A'
+    category = category_tags[1].get_text(strip=True) if len(category_tags) > 1 else 'N/A'
     
     price_tag = soup.find('span', class_='sc-f0xecg-5')
     if price_tag:
@@ -49,6 +51,7 @@ def extract_product_info(soup, product_num):
     return {
         'name': name,
         'brand': brand,
+        'parent_category' : parent_category,
         'category' : category,
         'product_id' : product_num,
         'current_price': price,
@@ -99,6 +102,7 @@ def print_product_data(products_info):
         logging.info(f'상품 번호: {product_info["product_id"]}')
         logging.info(f'상품 이름: {product_info["name"]}')
         logging.info(f'브랜드: {product_info["brand"]}')
+        logging.info(f'상위 카테고리: {product_info["parent_category"]}')
         logging.info(f'카테고리: {product_info["category"]}')
         logging.info(f'상품 가격: {product_info["current_price"]}')
         logging.info(f'상품 URL: {product_info["product_url"]}')

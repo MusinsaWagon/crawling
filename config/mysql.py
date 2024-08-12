@@ -44,7 +44,6 @@ class Category(Base):
     category_name = Column(String(50), nullable=False, unique=True)
 
 
-
 # 테이블 생성
 Base.metadata.create_all(engine)
 
@@ -57,7 +56,7 @@ def save_to_database(products_info):
                 new_product = Product(
                     name=product['name'],
                     brand=product['brand'],
-                    category_id=1, 
+                    category_id= get_or_create_category(product['category'], product['parent_category']), 
                     product_id=int(product['product_id']),
                     img_url=product['image_url'],
                     product_url=product['product_url'],
@@ -68,11 +67,23 @@ def save_to_database(products_info):
         session.rollback()
         logging.error(f"초기 상품 저장 오류: {e}")
 
-def get_or_create_category(session, category_name):
+def get_or_create_category(category_name, parent_category_name=None):
+    session = Session()
     try:
         category = session.query(Category).filter_by(category_name=category_name).one()
     except NoResultFound:
-        new_category = Category(category_name=category_name)
+        if parent_category_name:
+            try:
+                parent_category = session.query(Category).filter_by(category_name=parent_category_name).one()
+            except NoResultFound:
+                # 부모 카테고리도 없으면 생성
+                parent_category = Category(category_name=parent_category_name)
+                session.add(parent_category)
+                session.commit()
+        else:
+            parent_category = None
+
+        new_category = Category(category_name=category_name, parent_category_id=parent_category.id if parent_category else None)
         session.add(new_category)
         session.commit()
         category = new_category
