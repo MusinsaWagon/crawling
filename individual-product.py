@@ -167,11 +167,7 @@ def main():
     
     # print_product_main_data(product_info)
     # print_product_side_data(product_info)
-    save_product_info(product_info)
+    # save_product_info(product_info)
     
 if __name__ == "__main__":
     main()
-    
-    
-    
-    
