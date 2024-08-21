@@ -22,73 +22,68 @@ PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
 def extract_musinsa_product_main_info(driver, product_num):
-    
     # 페이지 로딩 대기
     wait = WebDriverWait(driver, 5)
-    
-     # 제품 이름
+
+    # 제품 이름
     try:
         name_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[4]/span')))
         name = name_element.text.strip()
     except:
         name = 'N/A'
-        
+
     # 브랜드 이름
     try:
-        brand_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[1]/div/a/div[2]/span[1]')))
+        brand_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[1]/div/a/div[2]/span[1]')
         brand = brand_element.text.strip()
     except:
         brand = 'N/A'
 
     # 카테고리 정보
     try:
-        category_elements = wait.until(EC.presence_of_all_elements_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[3]/div')))
-       
+        category_elements = driver.find_elements(By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[3]/div')
         category_text = category_elements[0].text.strip()
-        categories = category_text.split('\n')  # 줄바꿈을 기준으로 분리
-
+        categories = category_text.split('\n')
         parent_category = categories[0] if len(categories) > 0 else 'N/A'
         category = categories[1] if len(categories) > 1 else 'N/A'
     except:
         parent_category = 'N/A'
         category = 'N/A'
-        
 
+    # 원래 가격 (origin_price)
+    try:
+        origin_price_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[7]/div/div/span')))
+        origin_price = int(origin_price_element.text.strip().replace(',', '').replace('원', ''))
+    except:
+        origin_price = 'N/A'
+        
     # 할인된 가격 (sale_price)
     try:
-        sale_price_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[8]/div/div/div/span[2]')))
+        sale_price_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[7]/div/div/div/span[2]')))
         sale_price = int(sale_price_element.text.strip().replace(',', '').replace('원', ''))
     except:
         sale_price = 'N/A'
 
-    # 원래 가격 (origin_price)
-    try:
-        origin_price_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[2]/div[8]/div/div/span')))
-        origin_price = int(origin_price_element.text.strip().replace(',', '').replace('원', ''))
-    except:
-        origin_price = 'N/A'
-
 
     # 이미지 URL
     try:
-        img_element = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="root"]/div[1]/div[1]/div/div[1]/div/div[1]/div/div[1]/img')))
+        img_element = driver.find_element(By.XPATH, '//*[@id="root"]/div[1]/div[1]/div/div[1]/div/div[1]/div/div[1]/img')
         img_url = img_element.get_attribute('src')
     except:
         img_url = 'N/A'
 
-
     return {
         'name': name,
         'brand': brand,
-        'parent_category' : parent_category,
-        'category' : category,
-        'product_id' : product_num,
+        'parent_category': parent_category,
+        'category': category,
+        'product_id': product_num,
         'sale_price': sale_price,
-        'origin_price' : origin_price,
+        'origin_price': origin_price,
         'image_url': img_url,
-        'product_url' : MUSINSA_PRODUCT_URL + "/" + product_num,
+        'product_url': "https://www.musinsa.com/products/" + product_num,
     }
-
+    
 def extract_musinsa_product_side_info(soup, product_num):
     like_tag = soup.find('span', class_='cIxZGm')
     like_text = like_tag.get_text(strip=True).replace(',', '') if like_tag else 'N/A'

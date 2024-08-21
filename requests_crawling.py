@@ -31,6 +31,8 @@ def fetch_price(product_id, headers):
         response.raise_for_status()
 
         soup = BeautifulSoup(response.content, 'lxml')
+        
+        print(soup)
         script_tag = soup.find('script', type='application/ld+json')
         
         if script_tag:
