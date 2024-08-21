@@ -17,7 +17,8 @@ class Product(Base):
     name = Column(String(100))
     brand = Column(String(100))
     product_url = Column(String(200), unique=True)
-    current_price = Column(Integer)
+    sale_price = Column(Integer)
+    original_price = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
@@ -29,7 +30,8 @@ def create_product(product):
         category_id = get_or_create_category(product['category'], product['parent_category'])
         img_url=product['image_url'],
         product_url=product['product_url'],
-        current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
+        sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        original_price=int(product['original_price']) if product['original_price'] != 'N/A' else 0
         
         # Product 객체 생성
         new_product = Product(
@@ -39,7 +41,8 @@ def create_product(product):
             product_id=product_id,
             img_url=img_url,
             product_url=product_url,
-            current_price=current_price
+            sale_price=sale_price,
+            original_price=original_price
         )
         return new_product
 
