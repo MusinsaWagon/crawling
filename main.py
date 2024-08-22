@@ -1,4 +1,4 @@
-from musinsa_product_crawling import get_musinsa_product_info
+from musinsa.product_info_crawling import get_musinsa_product_info
 
 
 def main():

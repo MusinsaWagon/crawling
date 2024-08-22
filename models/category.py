@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, BigInteger, ForeignKey
 from config.mysql import Base
 from config.mysql import Session
-from sqlalchemy.exc import NoResultFound
+import logging
 
 class Category(Base):
     __tablename__ = 'category'
@@ -13,25 +13,33 @@ class Category(Base):
 def get_or_create_category(category_name, parent_category_name=None):
     session = Session()
     try:
-        category = session.query(Category).filter_by(category_name=category_name).one()
-    except NoResultFound:
-        if parent_category_name:
-            try:
-                parent_category = session.query(Category).filter_by(category_name=parent_category_name).one()
-            except NoResultFound:
-                # 부모 카테고리도 없으면 생성
-                parent_category = Category(category_name=parent_category_name)
-                session.add(parent_category)
-                session.commit()
-        else:
-            parent_category = None
+        # 기존 카테고리를 조회
+        category = session.query(Category).filter_by(category_name=category_name).one_or_none()
 
-        new_category = Category(category_name=category_name, parent_category_id=parent_category.id if parent_category else None)
-        session.add(new_category)
-        session.commit()
-        category = new_category
+        if category is None:
+            # 부모 카테고리 조회 또는 생성
+            if parent_category_name:
+                parent_category = session.query(Category).filter_by(category_name=parent_category_name).one_or_none()
+                if parent_category is None:
+                    parent_category = Category(category_name=parent_category_name)
+                    session.add(parent_category)
+                    session.commit()
+            else:
+                parent_category = None
+
+            # 새로운 카테고리 생성
+            category = Category(category_name=category_name, parent_category_id=parent_category.id if parent_category else None)
+            session.add(category)
+            session.commit()
+        
+        # 세션에 바인딩된 객체를 반환
+        return category.id
+
+    except Exception as e:
+        logging.error(f"카테고리 생성 중 오류 발생: {e}")
+        session.rollback()
+        return None
+
     finally:
         session.close()
-        
-    return category.id
 

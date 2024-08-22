@@ -7,19 +7,19 @@ class Musinsa(Base):
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     product_id = Column(BigInteger, ForeignKey('product.id'), nullable=False)
-    rating = Column(Float, nullable=True)
+    star_score = Column(Float, nullable=True)
     review_count = Column(Integer, nullable=True)
     like_count = Column(Integer, nullable=True)
     
 def create_musinsa(product, new_product_id):
     try:
-        rating = float(product.get('star_count', 0.0))
+        star_score = float(product.get('star_score', 0.0))
         review_count = int(product.get('review_count', 0))
         like_count = int(product.get('like_count', 0))
 
         return Musinsa(
             product_id=new_product_id,  
-            rating=rating,
+            star_score=star_score,
             review_count=review_count,
             like_count=like_count
         )

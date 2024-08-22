@@ -67,7 +67,7 @@ def extract_musinsa_product_main_info(product_num, session):
                     'brand': brand,
                     'parent_category': parent_category,
                     'category': category,
-                    'product_id': product_num,
+                    'product_num': product_num,
                     'sale_price': sale_price,
                     'origin_price': origin_price,
                     'image_url': img_url,
@@ -104,7 +104,7 @@ def fetch_product_info_multithread(products_num, chromedriver_path):
 def print_product_main_data(products_info):
     # 결과 출력
     for product_info in products_info:
-       print(f'상품 번호: {product_info["product_id"]}')
+       print(f'상품 번호: {product_info["product_num"]}')
        print(f'상품 이름: {product_info["name"]}')
        print(f'브랜드: {product_info["brand"]}')
        print(f'상위 카테고리: {product_info["parent_category"]}')
@@ -126,11 +126,11 @@ def get_musinsa_product_info():
     chromedriver_path = f'{CHROMEDRIVER_PATH}'
  
     start_time = time.time()  # 시작 시간 기록
-    product_info = fetch_product_info_multithread(products_num, chromedriver_path)
+    products_info = fetch_product_info_multithread(products_num, chromedriver_path)
     end_time = time.time()
     
-    print_product_main_data(product_info)
+    print_product_main_data(products_info)
     print(f'총 실행 시간: {end_time - start_time:.2f}초')  # 실행 시간 계산 및 출력
     
-    # save_product_info(product_info)
+    save_product_info(products_info)
     

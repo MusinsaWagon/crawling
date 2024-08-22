@@ -12,13 +12,14 @@ class Product(Base):
     
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     category_id = Column(Integer, nullable=False)
-    product_id = Column(Integer, unique=True, nullable=False)
+    product_num = Column(Integer, unique=True, nullable=False)
     img_url = Column(String(200))
     name = Column(String(100))
     brand = Column(String(100))
     product_url = Column(String(200), unique=True)
+    origin_price = Column(Integer)
     sale_price = Column(Integer)
-    original_price = Column(Integer)
+    origin_price = Column(Integer)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
@@ -26,19 +27,19 @@ def create_product(product):
     try:
         product_name = product['name']
         brand = product['brand']
-        product_id = int(product['product_id'])  
+        product_num = int(product['product_num'])  
         category_id = get_or_create_category(product['category'], product['parent_category'])
-        img_url=product['image_url'],
-        product_url=product['product_url'],
+        img_url=product['image_url']
+        product_url=product['product_url']
         sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
-        origin_price=int(product['original_price']) if product['original_price'] != 'N/A' else 0
+        origin_price=int(product['origin_price']) if product['origin_price'] != 'N/A' else 0
         
         # Product 객체 생성
         new_product = Product(
             name=product_name,
             brand=brand,
             category_id=category_id,
-            product_id=product_id,
+            product_num=product_num,
             img_url=img_url,
             product_url=product_url,
             sale_price=sale_price,
@@ -51,8 +52,9 @@ def create_product(product):
         raise
 
     except Exception as e:
-        logging.error(f"상품 생성 중 오류 발생: {e}")
+        logging.error(f"product 생성 중 오류 발생: {e}")
         return None
+    
     
 def save_product_info(products_info):
     session = Session()

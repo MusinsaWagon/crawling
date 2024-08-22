@@ -5,10 +5,11 @@ from selenium.webdriver.chrome.service import Service
 import pandas as pd
 from bs4 import BeautifulSoup
 import re
-from driver_setup import setup_driver   
+from config.driver_setup import setup_driver   
 from dotenv import load_dotenv
 
 load_dotenv() # 환경변수 로딩
+
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
 def extract_product_info(product):
@@ -71,7 +72,8 @@ def scroll_and_load_products(driver, url, target_count=100):
     
     return product_list[:target_count]
 
-def main():
+def extract_product_num_from_categoryinfo():
+    
     base_url = 'https://www.musinsa.com/categories/item/'
     category_ids = ['001005', '001002', '001004', '001006','001003', '001010', '001001','001011', '001013', '001008']  
     item_count = 120 # 크롤링 할 상품의 수
@@ -104,6 +106,3 @@ def main():
     
     finally:
         driver.quit()
-
-if __name__ == "__main__":
-    main()
