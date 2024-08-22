@@ -8,6 +8,7 @@ import logging
 from config.log import *
 from config.mysql import *
 from models.product import save_product_info
+from config.file import read_product_numbers
 import requests
 import json
 
@@ -119,14 +120,7 @@ def print_product_main_data(products_info):
        print("---------------------------------------")
         
 
-def read_product_numbers(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            products_num = [line.strip() for line in file if line.strip().isdigit()]
-        return products_num
-    except FileNotFoundError:
-        logging.error(f"파일을 찾을 수 없습니다: {file_path}")
-        return []
+
     
 def main():
     products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
