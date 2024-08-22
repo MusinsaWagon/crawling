@@ -120,9 +120,8 @@ def print_product_main_data(products_info):
        print("---------------------------------------")
         
 
-
     
-def main():
+def get_musinsa_product_info():
     products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
     chromedriver_path = f'{CHROMEDRIVER_PATH}'
  
@@ -135,5 +134,3 @@ def main():
     
     # save_product_info(product_info)
     
-if __name__ == "__main__":
-    main()
