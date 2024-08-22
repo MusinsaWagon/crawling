@@ -22,7 +22,7 @@ CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
 
    
-def extract_musinsa_product_main_info(product_num, headers):
+def extract_musinsa_product_main_info(product_num, session):
     headers = {
         'User-Agent': f'{USER_AGENT}',
         "Connection": "close"
@@ -31,9 +31,8 @@ def extract_musinsa_product_main_info(product_num, headers):
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
     
     try:
-        response = requests.get(product_url, headers=headers)
+        response = session.get(product_url, headers=headers, timeout=5)
         response.raise_for_status()
-
         soup = BeautifulSoup(response.content, 'lxml')
 
         # script 태그에서 JavaScript 객체를 추출
@@ -90,21 +89,16 @@ def extract_musinsa_product_main_info(product_num, headers):
 
 def fetch_product_info_multithread(products_num, chromedriver_path):
     products_info = []  # 상품 정보를 저장할 리스트
-    with ThreadPoolExecutor(max_workers=cpu_count()) as executor:
-        futures = [executor.submit(extract_musinsa_product_main_info, product_num, chromedriver_path) for product_num in products_num]
-        for future in futures:
-            product_info = future.result()
-            if product_info:
-                products_info.append(product_info)  # 결과를 리스트에 추가
-                
+    with requests.Session() as session:  # 세션을 재사용하여 속도 향상
+        with ThreadPoolExecutor(max_workers=cpu_count()) as executor:
+            futures = [executor.submit(extract_musinsa_product_main_info, product_num , session) for product_num in products_num]
+            for future in futures:
+                product_info = future.result()
+                if product_info:
+                    products_info.append(product_info)  # 결과를 리스트에 추가
+                    
     return products_info
 
-
-def fetch_product_info_multiprocess(products_num, chromedriver_path):
-    with Pool(processes=cpu_count()) as pool:
-        product_info_list = pool.starmap(extract_musinsa_product_main_info, [(product, chromedriver_path) for product in products_num])
-    return product_info_list
-    
 
 def print_product_main_data(products_info):
     # 결과 출력
