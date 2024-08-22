@@ -49,7 +49,7 @@ def extract_musinsa_sale_price(product_num, headers):
                 logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
                 return None
         else:
-            logging.warning(f'상품 정보를 찾을 수 없습니다. 상품 번호: {product_num}')
+            logging.warning(f'상품 가격 정보를 찾을 수 없습니다. 상품 번호: {product_num}')
             return None
         
     except requests.RequestException as e:
