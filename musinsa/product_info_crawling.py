@@ -23,11 +23,8 @@ CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 
 
    
-def extract_musinsa_product_main_info(product_num, session):
-    headers = {
-        'User-Agent': f'{USER_AGENT}',
-        "Connection": "close"
-    }
+def extract_musinsa_product_main_info(product_num, session, headers):
+  
     
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
     
@@ -88,11 +85,11 @@ def extract_musinsa_product_main_info(product_num, session):
         return None
 
 
-def fetch_product_info_multithread(products_num, chromedriver_path):
+def fetch_product_info_multithread(products_num, chromedriver_path, headers):
     products_info = []  # 상품 정보를 저장할 리스트
     with requests.Session() as session:  # 세션을 재사용하여 속도 향상
         with ThreadPoolExecutor(max_workers=cpu_count()) as executor:
-            futures = [executor.submit(extract_musinsa_product_main_info, product_num , session) for product_num in products_num]
+            futures = [executor.submit(extract_musinsa_product_main_info, product_num , session, headers) for product_num in products_num]
             for future in futures:
                 product_info = future.result()
                 if product_info:
@@ -124,9 +121,14 @@ def print_product_main_data(products_info):
 def get_musinsa_product_info():
     products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
     chromedriver_path = f'{CHROMEDRIVER_PATH}'
+    
+    headers = {
+        'User-Agent': f'{USER_AGENT}',
+        "Connection": "close"
+    }
  
     start_time = time.time()  # 시작 시간 기록
-    products_info = fetch_product_info_multithread(products_num, chromedriver_path)
+    products_info = fetch_product_info_multithread(products_num, chromedriver_path, headers)
     end_time = time.time()
     
     print_product_main_data(products_info)
