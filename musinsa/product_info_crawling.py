@@ -20,12 +20,9 @@ MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
-
-
    
 def extract_musinsa_product_main_info(product_num, session, headers):
   
-    
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
     
     try:

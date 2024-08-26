@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float
 import datetime
 import logging
 from config.mysql import Base
 from config.mysql import Session
 from models.category import get_or_create_category
-from models.musinsa import create_musinsa
-from models.product_history import create_musinsa_history
+from models.product_detail import create_product_detail
+from models.product_history import create_product_history
 
 class Product(Base):
     __tablename__ = 'product'
@@ -17,9 +17,10 @@ class Product(Base):
     name = Column(String(100))
     brand = Column(String(100))
     product_url = Column(String(200), unique=True)
-    origin_price = Column(Integer)
     sale_price = Column(Integer)
     origin_price = Column(Integer)
+    star_score = Column(Float, nullable=True)
+    review_count = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
@@ -33,6 +34,8 @@ def create_product(product):
         product_url=product['product_url']
         sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
         origin_price=int(product['origin_price']) if product['origin_price'] != 'N/A' else 0
+        star_score = float(product.get('star_score', 0.0))
+        review_count = int(product.get('review_count', 0))
         
         # Product 객체 생성
         new_product = Product(
@@ -43,7 +46,9 @@ def create_product(product):
             img_url=img_url,
             product_url=product_url,
             sale_price=sale_price,
-            origin_price=origin_price
+            origin_price=origin_price,
+            star_score=star_score,
+            review_count=review_count
         )
         return new_product
 
@@ -66,10 +71,10 @@ def save_product_info(products_info):
                 session.add(new_product)
                 session.flush()  # ID를 얻기 위해 flush 수행
                 
-                new_musinsa = create_musinsa(product, new_product.id)
+                new_musinsa = create_product_detail(product, new_product.id)
                 session.add(new_musinsa)
                 
-                new_musinsa_history = create_musinsa_history(product, new_product.id)
+                new_musinsa_history = create_product_history(product, new_product.id)
                 session.add(new_musinsa_history)
                 
     except Exception as e:
