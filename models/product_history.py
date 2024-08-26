@@ -12,13 +12,13 @@ class ProductHistory(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow().date(), nullable=False)
     
     
-def create_musinsa_history(product, new_product_id):
+def create_product_history(product, new_product_id):
     try:
-        price = int(product.get('current_price', 0)) 
+        sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
 
         product_history = ProductHistory(
             product_id=new_product_id,
-            price=price,
+            price=sale_price,
             created_at=datetime.datetime.utcnow().date() 
         )
 
