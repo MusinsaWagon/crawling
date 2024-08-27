@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float, Enum as SqlEnum
 import datetime
 import logging
 from config.mysql import Base
@@ -7,6 +7,13 @@ from models.category import get_or_create_category
 from models.product_detail import create_product_detail
 from models.product_history import create_product_history
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from enum import Enum
+
+class ShopType(Enum):
+    MUSINSA = "MUSINSA"
+    ZIGZAG = "ZIGZAG"
+    ABLY = "ABLY"
+    BRANDY = "BRANDY"
 
 class Product(Base):
     __tablename__ = 'product'
@@ -17,39 +24,39 @@ class Product(Base):
     img_url = Column(String(200))
     name = Column(String(100))
     brand = Column(String(100))
-    product_url = Column(String(200), unique=True)
-    sale_price = Column(Integer)
     origin_price = Column(Integer)
     star_score = Column(Float, nullable=True)
     review_count = Column(Integer, nullable=True)
+    like_count = Column(Integer, nullable=True)
+    shop_type = Column(SqlEnum(ShopType), nullable=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
 def create_product(product):
     try:
+        category_id = get_or_create_category(product['category'], product['parent_category'])
+        product_num = int(product['product_num'])  
+        img_url=product['image_url']
         product_name = product['name']
         brand = product['brand']
-        product_num = int(product['product_num'])  
-        category_id = get_or_create_category(product['category'], product['parent_category'])
-        img_url=product['image_url']
-        product_url=product['product_url']
-        sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
         origin_price=int(product['origin_price']) if product['origin_price'] != 'N/A' else 0
         star_score = float(product.get('star_score', 0.0))
         review_count = int(product.get('review_count', 0))
+        like_count = int(product.get('like_count', 0))
+        shop_type = ShopType.MUSINSA
         
         # Product 객체 생성
         new_product = Product(
-            name=product_name,
-            brand=brand,
             category_id=category_id,
             product_num=product_num,
             img_url=img_url,
-            product_url=product_url,
-            sale_price=sale_price,
+            name=product_name,
+            brand=brand,
             origin_price=origin_price,
             star_score=star_score,
-            review_count=review_count
+            review_count=review_count,
+            like_count=like_count,
+            shop_type=shop_type
         )
         return new_product
 
@@ -68,14 +75,13 @@ def save_product_info(products_info):
         for product in products_info:
             try:
                 with session.begin(): 
-              
                     new_product = create_product(product)
                     if new_product is None:
                         continue  # 생성 실패한 경우 다음으로 넘어감
 
                     session.add(new_product)
                     session.flush()  # ID를 얻기 위해 flush 수행
-
+                    
                     new_product_detail = create_product_detail(product, new_product.id)
                     session.add(new_product_detail)
 

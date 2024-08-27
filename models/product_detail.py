@@ -1,35 +1,34 @@
-from sqlalchemy import Column, Integer, BigInteger, ForeignKey, Enum as SqlEnum
+from sqlalchemy import Column, String, Integer, BigInteger, ForeignKey, Enum as SqlEnum
 from config.mysql import Base
 import logging
 from enum import Enum
-
-class ShopType(Enum):
-    MUSINSA = "MUSINSA"
-    ZIGZAG = "ZIGZAG"
-    ABLY = "ABLY"
-    BRANDY = "BRANDY"
-
 
 class ProductDetail(Base):
     __tablename__ = 'product_detail'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     product_id = Column(BigInteger, ForeignKey('product.id'), nullable=False)
-    purchase_count = Column(Integer, nullable=True)
-    like_count = Column(Integer, nullable=True)
-    shop_type = Column(SqlEnum(ShopType), nullable=False)
+    high_price = Column(Integer, nullable=True)
+    middle_price = Column(Integer, nullable=True)
+    low_price = Column(Integer, nullable=True)
+    product_url = Column(String(200), unique=True)
+   
     
 def create_product_detail(product, new_product_id):
     try:
-        like_count = int(product.get('like_count', 0))
-        purchase_count = 0 
-        shop_type = ShopType.MUSINSA
+        # 초기값은 판매가격으로 설정
+        high_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        middle_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        low_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        product_url=product['product_url']
+        
         
         return ProductDetail(
             product_id=new_product_id,
-            like_count=like_count,
-            purchase_count=purchase_count,
-            shop_type=shop_type
+            high_price=high_price,
+            middle_price=middle_price,
+            low_price=low_price,
+            product_url=product_url
         )
          
     except (ValueError, TypeError) as e:
