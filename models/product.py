@@ -6,6 +6,7 @@ from config.mysql import Session
 from models.category import get_or_create_category
 from models.product_detail import create_product_detail
 from models.product_history import create_product_history
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 class Product(Base):
     __tablename__ = 'product'
@@ -64,23 +65,36 @@ def create_product(product):
 def save_product_info(products_info):
     session = Session()
     try:
-        with session.begin():
-            for product in products_info:
-                # Product 생성
-                new_product = create_product(product)
-                session.add(new_product)
-                session.flush()  # ID를 얻기 위해 flush 수행
-                
-                new_musinsa = create_product_detail(product, new_product.id)
-                session.add(new_musinsa)
-                
-                new_musinsa_history = create_product_history(product, new_product.id)
-                session.add(new_musinsa_history)
-                
+        for product in products_info:
+            try:
+                with session.begin(): 
+              
+                    new_product = create_product(product)
+                    if new_product is None:
+                        continue  # 생성 실패한 경우 다음으로 넘어감
+
+                    session.add(new_product)
+                    session.flush()  # ID를 얻기 위해 flush 수행
+
+                    new_product_detail = create_product_detail(product, new_product.id)
+                    session.add(new_product_detail)
+
+                    new_product_history = create_product_history(product, new_product.id)
+                    session.add(new_product_history)
+
+            except IntegrityError as ie:
+                session.rollback()  # 트랜잭션을 롤백하여 무결성 문제 해결
+                logging.error(f"중복 데이터로 인해 저장 실패: {product['product_num']}, 오류: {ie}")
+                continue  # 다음 상품으로 넘어감
+
+            except SQLAlchemyError as se:
+                session.rollback()
+                logging.error(f"SQLAlchemy 오류 발생: {se}")
+                continue  # 다음 상품으로 넘어감
+
     except Exception as e:
-        session.rollback()
-        logging.error(f"초기 상품 저장 오류: {e}")
+        logging.error(f"초기 상품 저장 중 알 수 없는 오류 발생: {e}")
+
     finally:
         session.close()
-
 
