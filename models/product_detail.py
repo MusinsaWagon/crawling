@@ -22,7 +22,6 @@ def create_product_detail(product, new_product_id):
         low_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
         product_url=product['product_url']
         
-        
         return ProductDetail(
             product_id=new_product_id,
             high_price=high_price,
