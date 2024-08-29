@@ -7,14 +7,12 @@ class ProductDetail(Base):
     __tablename__ = 'product_detail'
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
-    product_id = Column(BigInteger, ForeignKey('product.id'), nullable=False)
     high_price = Column(Integer, nullable=True)
     middle_price = Column(Integer, nullable=True)
     low_price = Column(Integer, nullable=True)
     product_url = Column(String(200), unique=True)
-   
     
-def create_product_detail(product, new_product_id):
+def create_product_detail(product):
     try:
         # 초기값은 판매가격으로 설정
         high_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
@@ -23,7 +21,6 @@ def create_product_detail(product, new_product_id):
         product_url=product['product_url']
         
         return ProductDetail(
-            product_id=new_product_id,
             high_price=high_price,
             middle_price=middle_price,
             low_price=low_price,

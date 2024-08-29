@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float, Enum as SqlEnum
+from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float, Enum as SqlEnum, ForeignKey
 import datetime
 import logging
 from config.mysql import Base
@@ -20,6 +20,7 @@ class Product(Base):
     
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     category_id = Column(Integer, nullable=False)
+    product_detail_id = Column(BigInteger, ForeignKey('product_detail.id'), nullable=True, unique=True)
     product_num = Column(Integer, unique=True, nullable=False)
     img_url = Column(String(200))
     name = Column(String(100))
@@ -78,13 +79,15 @@ def save_product_info(products_info):
                     new_product = create_product(product)
                     if new_product is None:
                         continue  # 생성 실패한 경우 다음으로 넘어감
-
-                    session.add(new_product)
+                    
+                    new_product_detail = create_product_detail(product)
+                    session.add(new_product_detail)
                     session.flush()  # ID를 얻기 위해 flush 수행
                     
-                    new_product_detail = create_product_detail(product, new_product.id)
-                    session.add(new_product_detail)
-
+                    new_product.product_detail_id = new_product_detail.id
+                    session.add(new_product)
+                    session.flush()
+                    
                     new_product_history = create_product_history(product, new_product.id)
                     session.add(new_product_history)
 
