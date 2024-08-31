@@ -7,6 +7,7 @@ import time
 import logging
 from config.log import *
 from config.file import read_product_numbers
+from config.slack import send_slack_message
 
 load_dotenv()  # 환경변수 로딩
 
@@ -70,10 +71,23 @@ def get_product_price():
 
     start_time = time.time()  
     
+    successful_products = []
+    failed_products = []
+    
     for product_id in products_num:
         price = extract_musinsa_sale_price(product_id, headers)
+        if price:
+            successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
+        else:
+            failed_products.append(product_id)
         logging.info(f'상품 번호: {product_id}, 상품 가격: {price}원')
         
     end_time = time.time()
     
     logging.info(f'총 실행 시간: {end_time - start_time:.2f}초') 
+    
+    success_message = "\n".join(successful_products) if successful_products else "성공적으로 추출된 상품이 없습니다."
+    failed_message = ", ".join(failed_products) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
+    result_title = "🌟 상품 가격 추출 결과 🌟"
+    result_message = f"✅ *성공적으로 추출된 상품들*\n{success_message}\n\n\n ❗️*추출에 실패한 상품들*\n{failed_message}"
+    send_slack_message(result_title, result_message)
