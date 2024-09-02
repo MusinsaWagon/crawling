@@ -103,6 +103,7 @@ def save_product_info(products_info):
 
     except Exception as e:
         logging.error(f"초기 상품 저장 중 알 수 없는 오류 발생: {e}")
+        return None
 
     finally:
         session.close()

@@ -81,10 +81,11 @@ def get_product_price():
         
         price = extract_musinsa_sale_price(product_id, headers)
         
-        create_product_history_by_price(price, product_id)
         
         if price:
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
+            create_product_history_by_price(price, product_id, "MUSINSA")
+            
         else:
             failed_products.append(product_id)
         # logging.info(f'상품 번호: {product_id}, 상품 가격: {price}원')

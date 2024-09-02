@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, BigInteger, ForeignKey, DateTime
 from config.mysql import Base
 import datetime
 import logging
+from config.mysql import Session
+from sqlalchemy.exc import SQLAlchemyError
 
 class ProductHistory(Base):
     __tablename__ = 'product_history'
@@ -29,18 +31,35 @@ def create_product_history(product, new_product_id):
         return None
     
 
-def create_product_history_by_price(price, product_id):
+def create_product_history_by_price(price, product_num, shop_type):
+    from models.product import Product  # import를 함수 내에서 실행하여 순환 참조를 피함
+      
+    session = Session()
     try:
+        product = session.query(Product).filter_by(product_num=product_num, shop_type=shop_type).first()
 
-        product_history = ProductHistory(
-            product_id=product_id,
-            price=price,
-            created_at=datetime.datetime.utcnow().date() 
-        )
-
-        return product_history
-
-    except Exception as e:
-        logging.error(f"Musinsa History 생성 중 오류 {product_id}: {e}")
+        if product : 
+            product_history = ProductHistory(
+                product_id=product.id,
+                price=price,
+                created_at=datetime.datetime.utcnow().date() 
+            )
+            
+            # 데이터베이스에 기록 (선택 사항)
+            session.add(product_history)
+            session.commit()
+            
+            return product_history
+        else:
+            logging.error(f"가격 데이터 히스토리 생성 중 Product를 찾지 못했습니다. 상품 번호 : {product_num}")
+            return None
+        
+    except SQLAlchemyError as e:
+        session.rollback()  
+        logging.error(f"Musinsa History 생성 중 오류 {product_num}: {e}")
         return None
-    
+
+    finally:
+        session.close() 
+
+  

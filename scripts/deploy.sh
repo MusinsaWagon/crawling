@@ -1,4 +1,4 @@
 #!/bin/bash
 
-python /app/test.py
+python /app/main.py
 

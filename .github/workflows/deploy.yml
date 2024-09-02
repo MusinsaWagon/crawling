@@ -20,9 +20,7 @@ jobs:
       - name: Set up Python 
         uses: actions/setup-python@v2
         with:
-          python-version: 3.11 
-
-      # 환경 변수 생성
+          python-version: 3.11   # 환경 변수 생성
       - name: create env file 
         run: |
           touch .env
@@ -36,9 +34,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ~/app
-            mkdir hong1
-            # git pull
-            # docker build -t rong5026/cicd-test . &&
-            # docker push ehghksvjscl/fastapi-cpu-bound
-            # docker rm fastapi-test --force
+            if [ ! -d "~/app/musinsa-pricewagon" ]; then
+              git clone https://github.com/rong5026/musinsa-pricewagon.git ~/app/musinsa-pricewagon
+            else
+              cd ~/app/musinsa-pricewagon
+              git pull
+            fi
+            cd ~/app/musinsa-pricewagon
+            touch .env
+            echo "${{ secrets.ENV }}" >> .env
+
+            docker build -t rong5026/musinsa-pricewagon ~/app/musinsa-pricewagon
+            docker run -d --name --env-file=.env day-price-container rong5026/musinsa-pricewagon
