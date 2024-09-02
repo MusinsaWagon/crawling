@@ -1,0 +1,44 @@
+# main branch workflow
+name: Pricewagon-Day-Price-Crawling
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+   steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python # 파이썬 설정
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.11 
+
+    - name: create env file # 환경 변수 생성
+      run: |
+        touch .env
+        echo "${{ secrets.ENV }}" >> .env
+
+    - name: 
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}  # SSH 개인 키
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/app
+            mkdir hong
+            # git pull
+            # docker build -t rong5026/cicd-test . &&
+
+            # docker push ehghksvjscl/fastapi-cpu-bound
+            # docker rm fastapi-test --force
