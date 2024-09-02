@@ -37,7 +37,6 @@ jobs:
           script: |
             cd ~/app
             mkdir hong
-            
             # git pull
             # docker build -t rong5026/cicd-test . &&
             # docker push ehghksvjscl/fastapi-cpu-bound
