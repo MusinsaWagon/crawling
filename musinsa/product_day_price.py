@@ -8,6 +8,8 @@ import logging
 from config.log import *
 from config.file import read_product_numbers
 from config.slack import send_slack_message
+from models.product_history import create_product_history_by_price
+import random
 
 load_dotenv()  # 환경변수 로딩
 
@@ -75,7 +77,12 @@ def get_product_price():
     failed_products = []
     
     for product_id in products_num:
+        time.sleep(random.uniform(1, 3))  # 1초에서 3초 사이의 랜덤 딜레이
+        
         price = extract_musinsa_sale_price(product_id, headers)
+        
+        create_product_history_by_price(price, product_id)
+        
         if price:
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
         else:

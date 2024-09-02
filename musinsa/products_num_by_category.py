@@ -52,8 +52,10 @@ def scroll_and_load_products(driver, url, target_count=100):
 
 def extract_product_num_from_categoryinfo():
     base_url = 'https://www.musinsa.com/categories/item/'
-    category_ids = ['001005']
-    # category_ids = ['003002']
+    category_ids = ['001005', '001002', '001004', 
+                    '002022', '002001', '002002',
+                    '003004', '003009', '003008', 
+                    '100001', '100003']# 크롤링 할 카테고리 ID
     item_count = 8  # 크롤링 할 상품의 수
     chromedriver_path = f'{CHROMEDRIVER_PATH}'
     driver = setup_driver(chromedriver_path)

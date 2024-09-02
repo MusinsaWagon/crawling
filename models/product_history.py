@@ -27,3 +27,20 @@ def create_product_history(product, new_product_id):
     except Exception as e:
         logging.error(f"Musinsa History 생성 중 오류 {new_product_id}: {e}")
         return None
+    
+
+def create_product_history_by_price(price, product_id):
+    try:
+
+        product_history = ProductHistory(
+            product_id=product_id,
+            price=price,
+            created_at=datetime.datetime.utcnow().date() 
+        )
+
+        return product_history
+
+    except Exception as e:
+        logging.error(f"Musinsa History 생성 중 오류 {product_id}: {e}")
+        return None
+    
