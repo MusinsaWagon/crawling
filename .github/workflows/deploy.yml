@@ -32,11 +32,12 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}  # SSH 개인 키
+          key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ~/app
             mkdir hong
+            
             # git pull
             # docker build -t rong5026/cicd-test . &&
             # docker push ehghksvjscl/fastapi-cpu-bound
