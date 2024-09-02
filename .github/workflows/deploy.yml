@@ -13,21 +13,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-   steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Set up Python # 파이썬 설정
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.11 
+      - name: Set up Python # 파이썬 설정
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11 
 
-    - name: create env file # 환경 변수 생성
-      run: |
-        touch .env
-        echo "${{ secrets.ENV }}" >> .env
+      - name: create env file # 환경 변수 생성
+        run: |
+          touch .env
+          echo "${{ secrets.ENV }}" >> .env
 
-    - name: 
+      - name: Execute SSH command on remote server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -39,6 +39,5 @@ jobs:
             mkdir hong
             # git pull
             # docker build -t rong5026/cicd-test . &&
-
             # docker push ehghksvjscl/fastapi-cpu-bound
             # docker rm fastapi-test --force
