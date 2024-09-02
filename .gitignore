@@ -24,8 +24,7 @@ hs_err_pid*
 replay_pid*
 
 *.xlxs 
-
+s
 .env
-*.txt
 chromedriver
 *.xlsx
