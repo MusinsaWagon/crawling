@@ -44,5 +44,5 @@ jobs:
             touch .env
             echo "${{ secrets.ENV }}" >> .env
 
-            sudo -S docker build -t rong5026/musinsa-pricewagon ~/app/musinsa-pricewagon <<< "${{ secrets.SUDO_PASSWORD }}"
+            sudo -S docker build -t rong5026/musinsa-pricewagon .
             sudo -S docker run -d --name day-price-container --env-file=.env rong5026/musinsa-pricewagon <<< "${{ secrets.SUDO_PASSWORD }}"
