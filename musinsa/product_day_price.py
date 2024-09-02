@@ -80,7 +80,7 @@ def get_product_price():
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
         else:
             failed_products.append(product_id)
-        logging.info(f'상품 번호: {product_id}, 상품 가격: {price}원')
+        # logging.info(f'상품 번호: {product_id}, 상품 가격: {price}원')
         
     end_time = time.time()
     
