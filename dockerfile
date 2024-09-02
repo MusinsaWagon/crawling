@@ -4,7 +4,16 @@ FROM python:3.11-slim
 # 작업 디렉토리를 설정
 WORKDIR /app
 
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
 COPY . .
+
+# cron과 관련된 패키지를 설치
+RUN apt-get update && apt-get install -y cron
+
+RUN chmod +x /app/scripts/deploy.sh
 
 # cronjob 추가 (매 분마다 실행)
 RUN echo "* * * * * root /app/scripts/deploy.sh >> /app/log/cron.log 2>&1" >> /etc/crontab
