@@ -17,12 +17,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python # 파이썬 설정
+      # 파이썬 설정
+      - name: Set up Python 
         uses: actions/setup-python@v2
         with:
           python-version: 3.11 
 
-      - name: create env file # 환경 변수 생성
+      # Python 의존성 설치
+      - name: Install Python dependencies 
+        run: |
+          pip install --no-cache-dir -r requirements.txt
+
+      # cron 및 기타 의존성 설치
+      - name: Install cron and other dependencies 
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cron
+
+      # deploy.sh 실행 권한 부여
+      - name: Give execute permission to deploy.sh 
+        run: |
+          chmod +x /app/scripts/deploy.sh
+
+      # 환경 변수 생성
+      - name: create env file 
         run: |
           touch .env
           echo "${{ secrets.ENV }}" >> .env
@@ -36,7 +54,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ~/app
-            mkdir hong
+            mkdir hong1
             # git pull
             # docker build -t rong5026/cicd-test . &&
             # docker push ehghksvjscl/fastapi-cpu-bound
