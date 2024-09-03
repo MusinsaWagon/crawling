@@ -3,6 +3,8 @@
 
 apt-get update && apt-get install -y cron
 
+pip install --upgrade pip
+
 pip install --no-cache-dir -r requirements.txt
 
 # 로그 파일 경로 설정
