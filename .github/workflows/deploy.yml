@@ -40,9 +40,6 @@ jobs:
             touch .env
             echo "${{ secrets.ENV }}" >> .env
     
-            echo "Removing old Docker container..."
-            sudo -S docker rm day-price-container --force || true <<< "${{ secrets.SUDO_PASSWORD }}"
-            echo "Old Docker container removed successfully."
-
+            sudo -S docker rm day-price-container --force  <<< "${{ secrets.SUDO_PASSWORD }}"
             sudo -S docker build -t rong5026/musinsa-pricewagon . <<< "${{ secrets.SUDO_PASSWORD }}"
             sudo -S docker run -d --name day-price-container --env-file=.env rong5026/musinsa-pricewagon <<< "${{ secrets.SUDO_PASSWORD }}"
