@@ -17,5 +17,6 @@ RUN chmod +x /app/scripts/deploy.sh
 
 # cronjob 추가 ( 오전 6시 실행)
 RUN echo "* * * * * root /app/scripts/deploy.sh >> /app/log/cron.log 2>&1" >> /etc/crontab
-# cron 데몬과 함께 컨테이너를 실행
-CMD cron && tail -f /app/log/cron.log
+
+# cron 데몬과 함께 컨테이너를 실행 (JSON 형식으로 CMD 변경)
+CMD ["cron", "-f"]
