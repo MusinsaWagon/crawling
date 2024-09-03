@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# 기존 컨테이너가 존재하면 삭제
-docker rm day-price-container --force || true
+
+apt-get update && apt-get install -y cron
+
+pip install --no-cache-dir -r requirements.txt
 
 # 로그 파일 경로 설정
 LOG_FILE="$HOME/app/log/cron.log"
