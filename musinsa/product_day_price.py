@@ -11,6 +11,8 @@ from config.slack import send_slack_message
 from models.product_history import create_product_history_by_price
 import random
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
 load_dotenv()  # 환경변수 로딩
 
 # 무신사 상품 기본 URL
@@ -60,7 +62,8 @@ def extract_musinsa_sale_price(product_num, headers):
         return None
     
 def get_product_price():
-    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
+    file_path = os.path.join(current_dir, 'etc', f'{PRODUCTS_FILE_PATH}')
+    products_num = read_product_numbers(file_path)
     
     headers = {
         'User-Agent': f'{USER_AGENT}',
