@@ -21,10 +21,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.11   # 환경 변수 생성
-      - name: create env file 
-        run: |
-          touch .env
-          echo "${{ secrets.ENV }}" >> .env
 
       - name: Execute SSH command on remote server
         uses: appleboy/ssh-action@master
@@ -35,7 +31,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             if [ ! -d "$HOME/app/musinsa-pricewagon" ]; then
-              git clone https://github.com/rong5026/musinsa-pricewagon.git ~/app/musinsa-pricewagon
+              git clone https://github.com/rong5026/musinsa-pricewagon.git $HOME/app/musinsa-pricewagon
             else
               cd $HOME/app/musinsa-pricewagon
               git pull
