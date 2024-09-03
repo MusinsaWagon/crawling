@@ -17,6 +17,14 @@ if log_dir and not os.path.exists(log_dir):
 if not os.path.exists(LOG_FILE):
     open(LOG_FILE, 'a').close()
     
+
+# SQLAlchemy의 MySQL 엔진 로깅 비활성화
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
+
+#MySQL 로그 비활성화
+logging.getLogger('sqlalchemy.engine.Engine').disabled = True
+
+
 # 로깅 설정
 logging.basicConfig(
     level=logging.INFO,

@@ -92,7 +92,7 @@ def get_product_price():
         
     end_time = time.time()
     
-    logging.info(f'총 실행 시간: {end_time - start_time:.2f}초') 
+    logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초') 
     
     success_message = "\n".join(successful_products) if successful_products else "성공적으로 추출된 상품이 없습니다."
     failed_message = ", ".join(failed_products) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
