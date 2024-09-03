@@ -1,6 +1,9 @@
 import logging
+import os
 
 def read_product_numbers(file_path):
+    
+    print("Current working directory:", os.getcwd())
     try:
         with open(file_path, 'r') as file:
             products_num = [line.strip() for line in file if line.strip().isdigit()]
