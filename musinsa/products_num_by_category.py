@@ -37,9 +37,6 @@ def scroll_and_load_products(driver, url, target_count=100):
 
         products = driver.find_elements(By.CSS_SELECTOR, 'div.sc-dtBeHJ.iFyEFD a[data-item-id]')
         
-        for product in products:
-            print(product.get_attribute('data-item-id') + "\n" )
-            
         # 새로운 상품만 추가
         new_products = [get_products_id(product) for product in products]
         print(new_products)
@@ -55,8 +52,9 @@ def extract_product_num_from_categoryinfo():
     category_ids = ['001005', '001002', '001004', 
                     '002022', '002001', '002002',
                     '003004', '003009', '003008', 
-                    '100001', '100003']# 크롤링 할 카테고리 ID
-    item_count = 8  # 크롤링 할 상품의 수
+                    '100001', '100003', '103004', 
+                    '103002', '004001','004002' ]# 크롤링 할 카테고리 ID
+    item_count = 5  # 크롤링 할 상품의 수
     chromedriver_path = f'{CHROMEDRIVER_PATH}'
     driver = setup_driver(chromedriver_path)
     
