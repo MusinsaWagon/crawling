@@ -94,8 +94,19 @@ def get_product_price():
     
     logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초') 
     
-    success_message = "\n".join(successful_products) if successful_products else "성공적으로 추출된 상품이 없습니다."
+    
+    total_products = len(products_num)  # 전체 상품 수
+    success_count = len(successful_products)  # 성공적으로 추출된 상품 수
+    fail_count = len(failed_products)  # 실패한 상품 수
+    
     failed_message = ", ".join(failed_products) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
+
     result_title = "🌟 상품 가격 추출 결과 🌟"
-    result_message = f"✅ *성공적으로 추출된 상품들*\n{success_message}\n\n\n ❗️*추출에 실패한 상품들*\n{failed_message}"
+    result_message = (
+        f"총 상품 수: {total_products}\n"
+        f"성공적으로 추출된 상품 수: {success_count}\n"
+        f"실패한 상품 수: {fail_count}\n\n"
+        f"❗️*추출에 실패한 상품들*\n{failed_message}"
+    )
+    
     send_slack_message(result_title, result_message)
