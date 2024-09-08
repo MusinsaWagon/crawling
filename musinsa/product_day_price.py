@@ -8,7 +8,7 @@ import logging
 from config.log import *
 from config.file import read_product_numbers
 from config.slack import send_slack_message
-from models.product_history import create_product_history_by_price
+from models.product import update_product_and_history_info
 import random
 
 load_dotenv()  # 환경변수 로딩
@@ -19,7 +19,7 @@ USER_AGENT = os.getenv("USER_AGENT")
 LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 
-def extract_musinsa_sale_price(product_num, headers):
+def extract_musinsa_current_price(product_num, headers):
    
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
     
@@ -44,9 +44,9 @@ def extract_musinsa_sale_price(product_num, headers):
             if json_start != -1 and json_end != -1:
                 json_data = json.loads(script_content[json_start:json_end])
 
-                # 할인가를 추출
-                sale_price = json_data.get('goodsPrice', {}).get('memberPrice', 'N/A')
-                return sale_price
+                # 판매가 추출
+                current_price = json_data.get('goodsPrice', {}).get('memberPrice', 'N/A')
+                return current_price
 
             else:
                 logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
@@ -79,22 +79,20 @@ def get_product_price():
     for product_id in products_num:
         time.sleep(random.uniform(1, 3))  # 1초에서 3초 사이의 랜덤 딜레이
         
-        price = extract_musinsa_sale_price(product_id, headers)
-        
+        price = extract_musinsa_current_price(product_id, headers)
         
         if price:
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
-            create_product_history_by_price(price, product_id, "MUSINSA")
-            
+            update_product_and_history_info(price, product_id, "MUSINSA")
         else:
             failed_products.append(product_id)
-        # logging.info(f'상품 번호: {product_id}, 상품 가격: {price}원')
+        
         
     end_time = time.time()
     
     logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초') 
     
-    
+    # Slack 알림
     total_products = len(products_num)  # 전체 상품 수
     success_count = len(successful_products)  # 성공적으로 추출된 상품 수
     fail_count = len(failed_products)  # 실패한 상품 수
