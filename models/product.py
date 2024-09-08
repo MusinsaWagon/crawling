@@ -4,7 +4,7 @@ import logging
 from config.mysql import Base
 from config.mysql import Session
 from models.category import get_or_create_category
-from models.product_detail import create_product_detail
+from models.product_detail import create_product_detail, find_product_detail_by_id, update_product_detail_info
 from models.product_history import create_product_history
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from enum import Enum
@@ -88,7 +88,8 @@ def save_product_info(products_info):
                     session.add(new_product)
                     session.flush()
                     
-                    new_product_history = create_product_history(product, new_product.id)
+                    price = int(product['current_price']) if product['current_price'] != 'N/A' else 0
+                    new_product_history = create_product_history(price, new_product)
                     session.add(new_product_history)
 
             except IntegrityError as ie:
@@ -108,3 +109,40 @@ def save_product_info(products_info):
     finally:
         session.close()
 
+def update_product_info(product, current_price):
+    if product is None:
+        return None
+
+    if product.current_price != current_price:
+        product.current_price = current_price
+        return product 
+    return None  
+
+def update_product_and_history_and_detail_info(new_price, product_num, shop_type):
+    session = Session()
+    try:
+        with session.begin(): 
+            product = session.query(Product).filter_by(product_num=product_num, shop_type=shop_type).first()
+            
+            # 가격이 다를 경우 업데이트
+            if product is not None:
+                new_product_history = create_product_history(new_price, product)
+                session.add(new_product_history)
+
+                # 최대가, 최저가가 달라졌을 때 업데이트
+                product_detail = find_product_detail_by_id(product.product_detail_id)
+                update_product_detail = update_product_detail_info(product_detail, new_price)
+                if update_product_detail:
+                    session.add(update_product_detail)
+                    
+                # 현재가격이 달라졌을 때 업데이트
+                update_product = update_product_info(product, new_price)
+                if update_product:
+                    session.add(update_product) 
+                
+    except SQLAlchemyError as e:
+        session.rollback()  
+        logging.error(f"Musinsa Product or History update error {product_num}: {e}")
+        return None
+    finally:
+        session.close() 

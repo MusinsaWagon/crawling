@@ -14,51 +14,21 @@ class ProductHistory(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow().date(), nullable=False)
     
     
-def create_product_history(product, new_product_id):
+def create_product_history(price, product):
     try:
-        current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
-
-        product_history = ProductHistory(
-            product_id=new_product_id,
-            price=current_price,
-            created_at=datetime.datetime.utcnow().date() 
-        )
-
-        return product_history
-
-    except Exception as e:
-        logging.error(f"Musinsa History 생성 중 오류 {new_product_id}: {e}")
-        return None
-    
-
-def create_product_history_by_price(price, product_num, shop_type):
-    from models.product import Product  # import를 함수 내에서 실행하여 순환 참조를 피함
-      
-    session = Session()
-    try:
-        product = session.query(Product).filter_by(product_num=product_num, shop_type=shop_type).first()
-
         if product : 
             product_history = ProductHistory(
                 product_id=product.id,
                 price=price,
                 created_at=datetime.datetime.utcnow().date() 
             )
-            
-            session.add(product_history)
-            session.commit()
-            
+
             return product_history
         else:
             logging.error(f"가격 데이터 히스토리 생성 중 Product를 찾지 못했습니다. 상품 번호 : {product_num}")
             return None
-        
-    except SQLAlchemyError as e:
-        session.rollback()  
-        logging.error(f"Musinsa History 생성 중 오류 {product_num}: {e}")
+
+    except Exception as e:
+        logging.error(f"Musinsa History 생성 중 오류 {product.id}: {e}")
         return None
-
-    finally:
-        session.close() 
-
-  
+    
