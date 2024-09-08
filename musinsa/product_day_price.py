@@ -8,7 +8,7 @@ import logging
 from config.log import *
 from config.file import read_product_numbers
 from config.slack import send_slack_message
-from models.product import update_product_and_history_info
+from models.product import update_product_and_history_and_detail_info
 import random
 
 load_dotenv()  # 환경변수 로딩
@@ -83,7 +83,7 @@ def get_product_price():
         
         if price:
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
-            update_product_and_history_info(price, product_id, "MUSINSA")
+            update_product_and_history_and_detail_info(price, product_id, "MUSINSA")
         else:
             failed_products.append(product_id)
         

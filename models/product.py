@@ -4,7 +4,7 @@ import logging
 from config.mysql import Base
 from config.mysql import Session
 from models.category import get_or_create_category
-from models.product_detail import create_product_detail
+from models.product_detail import create_product_detail, find_product_detail_by_id, update_product_detail_info
 from models.product_history import create_product_history
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from enum import Enum
@@ -118,21 +118,28 @@ def update_product_info(product, current_price):
         return product 
     return None  
 
-def update_product_and_history_info(price, product_num, shop_type):
+def update_product_and_history_and_detail_info(new_price, product_num, shop_type):
     session = Session()
     try:
         with session.begin(): 
             product = session.query(Product).filter_by(product_num=product_num, shop_type=shop_type).first()
             
-            # 가격이 다를 경우 product history 생성 및 업데이트
+            # 가격이 다를 경우 업데이트
             if product is not None:
-                new_product_history = create_product_history(price, product)
+                new_product_history = create_product_history(new_price, product)
                 session.add(new_product_history)
-                update_product = update_product_info(product, price)
 
-                # 업데이트가 있는 경우 변경사항을 커밋
+                # 최대가, 최저가가 달라졌을 때 업데이트
+                product_detail = find_product_detail_by_id(product.product_detail_id)
+                update_product_detail = update_product_detail_info(product_detail, new_price)
+                if update_product_detail:
+                    session.add(update_product_detail)
+                    
+                # 현재가격이 달라졌을 때 업데이트
+                update_product = update_product_info(product, new_price)
                 if update_product:
-                    session.add(update_product)  # 변경된 product 객체를 세션에 추가
+                    session.add(update_product) 
+                
     except SQLAlchemyError as e:
         session.rollback()  
         logging.error(f"Musinsa Product or History update error {product_num}: {e}")
