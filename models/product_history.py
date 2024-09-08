@@ -45,7 +45,6 @@ def create_product_history_by_price(price, product_num, shop_type):
                 created_at=datetime.datetime.utcnow().date() 
             )
             
-            # 데이터베이스에 기록 (선택 사항)
             session.add(product_history)
             session.commit()
             
