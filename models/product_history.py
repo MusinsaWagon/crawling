@@ -16,11 +16,11 @@ class ProductHistory(Base):
     
 def create_product_history(product, new_product_id):
     try:
-        sale_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
 
         product_history = ProductHistory(
             product_id=new_product_id,
-            price=sale_price,
+            price=current_price,
             created_at=datetime.datetime.utcnow().date() 
         )
 

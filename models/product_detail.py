@@ -15,9 +15,9 @@ class ProductDetail(Base):
 def create_product_detail(product):
     try:
         # 초기값은 판매가격으로 설정
-        high_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
-        middle_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
-        low_price=int(product['sale_price']) if product['sale_price'] != 'N/A' else 0
+        high_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
+        middle_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
+        low_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
         product_url=product['product_url']
         
         return ProductDetail(

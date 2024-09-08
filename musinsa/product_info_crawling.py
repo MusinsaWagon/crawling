@@ -50,8 +50,7 @@ def extract_musinsa_product_main_info(product_num, session, headers):
                 brand = json_data.get('brandInfo', {}).get('brandName', 'N/A')
                 parent_category = json_data.get('category', {}).get('categoryDepth1Title', 'N/A')
                 category = json_data.get('category', {}).get('categoryDepth2Title', 'N/A')
-                sale_price = json_data.get('goodsPrice', {}).get('memberPrice', 'N/A')
-                origin_price = json_data.get('goodsPrice', {}).get('originPrice', 'N/A')
+                current_price = json_data.get('goodsPrice', {}).get('memberPrice', 'N/A')
                 img_url = json_data.get('thumbnailImageUrl', 'N/A')
                 star_score = json_data.get('goodsReview', {}).get('satisfactionScore', 'N/A')
                 review_count = json_data.get('goodsReview', {}).get('totalCount', 'N/A')
@@ -62,8 +61,7 @@ def extract_musinsa_product_main_info(product_num, session, headers):
                     'parent_category': parent_category,
                     'category': category,
                     'product_num': product_num,
-                    'sale_price': sale_price,
-                    'origin_price': origin_price,
+                    'current_price': current_price,
                     'image_url': img_url,
                     'star_score': star_score,
                     'review_count': review_count,
@@ -103,8 +101,7 @@ def print_product_main_data(products_info):
        print(f'브랜드: {product_info["brand"]}')
        print(f'상위 카테고리: {product_info["parent_category"]}')
        print(f'카테고리: {product_info["category"]}')
-       print(f'상품 원가: {product_info["origin_price"]}')
-       print(f'상품 판매가: {product_info["sale_price"]}')
+       print(f'상품 판매가: {product_info["current_price"]}')
        print(f'상품 URL: {product_info["product_url"]}')
        print(f'상품 이미지 URL: {product_info["image_url"]}')
        print("---------------------------------------")
