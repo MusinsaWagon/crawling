@@ -19,6 +19,7 @@ USER_AGENT = os.getenv("USER_AGENT")
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
+ADD_PROUDCTS_LIST_FILE_PATH = os.getenv("ADD_PROUDCTS_LIST_FILE_PATH")
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
    
 def extract_musinsa_product_main_info(product_num, session, headers):
