@@ -49,15 +49,45 @@ def find_product_detail_by_id(product_detail_id):
     finally:
         session.close()
         
-def update_product_detail_info(product_detail, current_price):
+def update_product_detail_info(product_detail, new_price, product_history_count):
+    is_high_low_updated = update_high_and_low_price(product_detail, new_price)
+    is_middle_updated = update_middel_price(product_detail, new_price, product_history_count)
+
+      # 둘 중 하나라도 업데이트가 발생했으면 True 반환
+    if is_high_low_updated is not None or is_middle_updated is not None:
+        return product_detail
+    return None
+    
+# 최고가, 최저가 업데이트
+def update_high_and_low_price(product_detail, new_price):
+    
     if product_detail is None:
         return None
     
-    if (product_detail.high_price < current_price):
-        product_detail.high_price = current_price
+    if (product_detail.high_price < new_price):
+        product_detail.high_price = new_price
         return product_detail
-    elif (product_detail.low_price > current_price):
-        product_detail.low_price = current_price
+    elif (product_detail.low_price > new_price):
+        product_detail.low_price = new_price
         return product_detail
     else:
         return None
+
+# 평균가 업데이트
+def update_middel_price(product_detail, new_price, product_history_count):
+    
+    # 기존 평균 가격이 None이면 새로운 가격을 평균으로 설정
+    if product_detail.middle_price is None or product_history_count == 0:
+        product_detail.middle_price = new_price
+        return product_detail
+    
+    if product_detail.middle_price == new_price:
+        return None
+    
+     # 새로운 평균가 계산
+    new_middle_price = ((product_detail.middle_price * product_history_count) + new_price) / (product_history_count + 1)
+    
+    # 평균가 업데이트
+    product_detail.middle_price = new_middle_price
+    return product_detail
+
