@@ -108,3 +108,4 @@ def get_product_price():
     )
     
     send_slack_message(result_title, result_message)
+
