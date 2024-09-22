@@ -19,6 +19,7 @@ USER_AGENT = os.getenv("USER_AGENT")
 LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 
+# 페이지 소스에서 가격 정보 가져오기
 def extract_musinsa_current_price(product_num, headers):
    
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
@@ -58,21 +59,10 @@ def extract_musinsa_current_price(product_num, headers):
     except requests.RequestException as e:
         logging.error(f'페이지를 불러오지 못했습니다. 상품 번호: {product_num}, 오류: {e}')
         return None
-    
-def get_product_price():
-    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
-    
-    headers = {
-        'User-Agent': f'{USER_AGENT}',
-        "Connection": "close"
-    }
-    
-    if not products_num:
-        logging.info("상품 번호가 없습니다. 프로그램을 종료합니다.")
-        return
 
-    start_time = time.time()  
-    
+# 상품 가격 추출
+def process_products(products_num):
+    headers = get_headers()
     successful_products = []
     failed_products = []
     
@@ -86,19 +76,22 @@ def get_product_price():
             update_product_and_history_and_detail_info(price, product_id, "MUSINSA")
         else:
             failed_products.append(product_id)
-        
-        
-    end_time = time.time()
     
-    logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초') 
-    
-    # Slack 알림
-    total_products = len(products_num)  # 전체 상품 수
-    success_count = len(successful_products)  # 성공적으로 추출된 상품 수
-    fail_count = len(failed_products)  # 실패한 상품 수
+    return successful_products, failed_products
+
+def get_headers():
+    return {
+        'User-Agent': f'{USER_AGENT}',
+        "Connection": "close"
+    }
+
+# 슬랙 메세지 틀 작성
+def send_result_to_slack(products_num, successful_products, failed_products):
+    total_products = len(products_num)
+    success_count = len(successful_products)
+    fail_count = len(failed_products)
     
     failed_message = ", ".join(failed_products) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
-
     result_title = "🌟 상품 가격 추출 결과 🌟"
     result_message = (
         f"총 상품 수: {total_products}\n"
@@ -106,6 +99,26 @@ def get_product_price():
         f"실패한 상품 수: {fail_count}\n\n"
         f"❗️*추출에 실패한 상품들*\n{failed_message}"
     )
-    
     send_slack_message(result_title, result_message)
 
+# 하루마다 상품 가격 받아오기
+def get_product_day_price():
+    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
+    
+    if not products_num:
+        logging.warning("상품 번호가 없습니다. 프로그램을 종료합니다.")
+        return
+
+    start_time = time.time()
+    successful_products, failed_products = process_products(products_num)
+    end_time = time.time()
+    
+    logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초')
+    
+    send_result_to_slack(products_num, successful_products, failed_products)
+
+def main():
+    get_product_day_price()
+
+if __name__ == "__main__":
+    main()
