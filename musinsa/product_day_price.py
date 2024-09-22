@@ -121,6 +121,7 @@ def get_product_day_price():
 
 def main():
     get_product_day_price()
+    logging.info("Day_Price 실행 완료")
 
 if __name__ == "__main__":
     main()
