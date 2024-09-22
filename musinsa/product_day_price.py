@@ -19,7 +19,6 @@ load_dotenv()  # 환경변수 로딩
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 USER_AGENT = os.getenv("USER_AGENT")
-LOG_FILE = os.getenv("LOG_FILE")
 
 # 페이지 소스에서 가격 정보 가져오기
 def extract_musinsa_current_price(product_num, headers):
@@ -120,8 +119,7 @@ def get_product_day_price():
     send_result_to_slack(products_num, successful_products, failed_products)
 
 def main():
-    # get_product_day_price()
-    logging.info("Day_Price 실행 완료")
+    get_product_day_price()
 
 if __name__ == "__main__":
     main()
