@@ -1,3 +1,7 @@
+import sys
+import os
+import requests
+import json
 import time
 from bs4 import BeautifulSoup
 import os
@@ -5,22 +9,20 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count
 from dotenv import load_dotenv
 import logging
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.log import *
 from config.mysql import *
 from models.product import save_product_info
 from config.file import read_product_numbers
-import requests
-import json
 
 load_dotenv() # 환경변수 로딩
 
 # 무신사 상품 기본 URL
 USER_AGENT = os.getenv("USER_AGENT")
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
-LOG_FILE = os.getenv("LOG_FILE")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 ADD_PROUDCTS_LIST_FILE_PATH = os.getenv("ADD_PROUDCTS_LIST_FILE_PATH")
-CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
    
 def extract_musinsa_product_main_info(product_num, session, headers):
   
@@ -81,7 +83,7 @@ def extract_musinsa_product_main_info(product_num, session, headers):
         return None
 
 
-def fetch_product_info_multithread(products_num, chromedriver_path, headers):
+def fetch_product_info_multithread(products_num, headers):
     products_info = []  # 상품 정보를 저장할 리스트
     with requests.Session() as session:  # 세션을 재사용하여 속도 향상
         with ThreadPoolExecutor(max_workers=cpu_count()) as executor:
@@ -115,7 +117,6 @@ def print_product_main_data(products_info):
     
 def get_musinsa_product_info():
     products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
-    chromedriver_path = f'{CHROMEDRIVER_PATH}'
     
     headers = {
         'User-Agent': f'{USER_AGENT}',
@@ -123,7 +124,7 @@ def get_musinsa_product_info():
     }
  
     start_time = time.time()  # 시작 시간 기록
-    products_info = fetch_product_info_multithread(products_num, chromedriver_path, headers)
+    products_info = fetch_product_info_multithread(products_num, headers)
     end_time = time.time()
     
     print_product_main_data(products_info)
