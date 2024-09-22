@@ -33,6 +33,7 @@ class Product(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
     
+# 상품 생성
 def create_product(product):
     try:
         category_id = get_or_create_category(product['category'], product['parent_category'])
@@ -70,6 +71,7 @@ def create_product(product):
         return None
     
     
+# 상품 저장
 def save_product_info(products_info):
     session = Session()
     try:
@@ -109,6 +111,7 @@ def save_product_info(products_info):
     finally:
         session.close()
 
+# 상품 가격 업데이트
 def update_product_price(product, current_price):
     if product is None:
         return None
@@ -118,6 +121,7 @@ def update_product_price(product, current_price):
         return product 
     return None  
 
+# 상품 업데이트 (history, detail, product)
 def update_product_and_history_and_detail_info(new_price, product_num, shop_type):
     session = Session()
     try:
@@ -149,3 +153,18 @@ def update_product_and_history_and_detail_info(new_price, product_num, shop_type
         return None
     finally:
         session.close() 
+        
+# 모든 상품 번호 조회
+def get_all_product_numbers():
+    session = Session()
+    try:
+        products = session.query(Product).all()
+        product_numbers = [product.product_num for product in products]
+        return product_numbers
+    except SQLAlchemyError as e:
+        session.rollback()  
+        logging.error(f"Product 번호 조회 중 오류 발생: {e}")
+        return None
+    finally:
+        session.close()
+        
