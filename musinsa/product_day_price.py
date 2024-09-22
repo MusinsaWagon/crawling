@@ -119,8 +119,7 @@ def get_product_day_price():
     send_result_to_slack(products_num, successful_products, failed_products)
 
 def main():
-    # get_product_day_price()
-    logging.info("Day_Price 실행 완료")
+    get_product_day_price()
 
 if __name__ == "__main__":
     main()
