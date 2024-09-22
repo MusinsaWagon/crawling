@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 from bs4 import BeautifulSoup
 import json
@@ -6,9 +10,8 @@ from dotenv import load_dotenv
 import time
 import logging
 from config.log import *
-from config.file import read_product_numbers
 from config.slack import send_slack_message
-from models.product import update_product_and_history_and_detail_info
+from models.product import update_product_and_history_and_detail_info, get_all_product_numbers
 import random
 
 load_dotenv()  # 환경변수 로딩
@@ -17,7 +20,6 @@ load_dotenv()  # 환경변수 로딩
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 USER_AGENT = os.getenv("USER_AGENT")
 LOG_FILE = os.getenv("LOG_FILE")
-PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 
 # 페이지 소스에서 가격 정보 가져오기
 def extract_musinsa_current_price(product_num, headers):
@@ -103,7 +105,7 @@ def send_result_to_slack(products_num, successful_products, failed_products):
 
 # 하루마다 상품 가격 받아오기
 def get_product_day_price():
-    products_num = read_product_numbers(f'{PRODUCTS_FILE_PATH}')
+    products_num = get_all_product_numbers()
     
     if not products_num:
         logging.warning("상품 번호가 없습니다. 프로그램을 종료합니다.")
