@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, BigInteger, Float, Enum as SqlEnum, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, BigInteger, Float, Enum as SqlEnum, ForeignKey
 import datetime
 import logging
 from config.mysql import Base
@@ -30,8 +30,8 @@ class Product(Base):
     review_count = Column(Integer, nullable=True)
     like_count = Column(Integer, nullable=True)
     shop_type = Column(SqlEnum(ShopType), nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(Date, default=datetime.date.today)
+    updated_at = Column(Date, default=datetime.date.today, onupdate=datetime.date.today)
     
 # 상품 생성
 def create_product(product):
