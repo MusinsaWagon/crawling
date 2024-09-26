@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, BigInteger, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, BigInteger, ForeignKey, Date
 from config.mysql import Base
 import datetime
 import logging
@@ -12,7 +12,7 @@ class ProductHistory(Base):
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     product_id = Column(Integer, ForeignKey('product.id'), nullable=False)
     price = Column(Integer, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow().date(), nullable=False)
+    created_at = Column(Date, default=datetime.date.today, nullable=False)
     
     
 def create_product_history(price, product):
