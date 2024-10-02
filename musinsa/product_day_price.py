@@ -115,7 +115,6 @@ def get_product_day_price():
     end_time = time.time()
     
     logging.info(f'Day_Price 실행 시간: {end_time - start_time:.2f}초')
-    
     send_result_to_slack(products_num, successful_products, failed_products)
 
 def main():
