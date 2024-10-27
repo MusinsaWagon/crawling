@@ -11,6 +11,7 @@ import time
 import logging
 from config.log import *
 from config.slack import send_slack_message
+from config.file import read_product_numbers
 from models.product import update_product_and_history_and_detail_info, get_all_product_numbers
 import random
 
@@ -19,6 +20,7 @@ load_dotenv()  # 환경변수 로딩
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 USER_AGENT = os.getenv("USER_AGENT")
+PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 
 # 페이지 소스에서 가격 정보 가져오기
 def extract_musinsa_current_price(product_num, headers):
@@ -47,7 +49,7 @@ def extract_musinsa_current_price(product_num, headers):
                 json_data = json.loads(script_content[json_start:json_end])
 
                 # 판매가 추출
-                current_price = json_data.get('goodsPrice', {}).get('memberPrice', 'N/A')
+                current_price = json_data.get('goodsPrice', {}).get('salePrice', 'N/A')
                 return current_price
 
             else:
@@ -91,8 +93,9 @@ def send_result_to_slack(products_num, successful_products, failed_products):
     total_products = len(products_num)
     success_count = len(successful_products)
     fail_count = len(failed_products)
+
+    failed_message = ", ".join(map(str, failed_products)) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
     
-    failed_message = ", ".join(failed_products) if failed_products else "모든 상품의 데이터를 성공적으로 추출했습니다."
     result_title = "🌟 상품 가격 추출 결과 🌟"
     result_message = (
         f"총 상품 수: {total_products}\n"
@@ -105,6 +108,7 @@ def send_result_to_slack(products_num, successful_products, failed_products):
 # 하루마다 상품 가격 받아오기
 def get_product_day_price():
     products_num = get_all_product_numbers()
+    # products_num = read_product_numbers(PRODUCTS_FILE_PATH)
     
     if not products_num:
         logging.warning("상품 번호가 없습니다. 프로그램을 종료합니다.")
