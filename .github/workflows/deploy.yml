@@ -31,7 +31,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             if [ ! -d "$HOME/app/musinsa-pricewagon" ]; then
-              git clone https://github.com/rong5026/musinsa-pricewagon.git $HOME/app/musinsa-pricewagon
+              git clone https://github.com/MusinsaWagon/crawling.git $HOME/app/musinsa-pricewagon
             else
               cd $HOME/app/musinsa-pricewagon
               git pull
