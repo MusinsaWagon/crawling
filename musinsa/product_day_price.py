@@ -89,8 +89,8 @@ def get_headers():
     }
 
 # 슬랙 메세지 틀 작성
-def send_result_to_slack(products_num, successful_products, failed_products):
-    total_products = len(products_num)
+def send_result_to_slack(total_products, successful_products, failed_products):
+    total_products = len(total_products)
     success_count = len(successful_products)
     fail_count = len(failed_products)
 
@@ -101,7 +101,7 @@ def send_result_to_slack(products_num, successful_products, failed_products):
         f"총 상품 수: {total_products}\n"
         f"성공적으로 추출된 상품 수: {success_count}\n"
         f"실패한 상품 수: {fail_count}\n\n"
-        f"❗️*추출에 실패한 상품들*\n{failed_message}"
+        f"❗️*추출결과*\n{failed_message}"
     )
     send_slack_message(result_title, result_message)
 
