@@ -38,11 +38,12 @@ def extract_product_info(json_data, product_num, product_url):
         'parent_category': json_data.get('category', {}).get('categoryDepth1Title', 'N/A'),
         'category': json_data.get('category', {}).get('categoryDepth2Title', 'N/A'),
         'product_num': product_num,
-        'current_price': json_data.get('goodsPrice', {}).get('memberPrice', 'N/A'),
+        'current_price': json_data.get('goodsPrice', {}).get('salePrice', 'N/A'),
         'image_url': json_data.get('thumbnailImageUrl', 'N/A'),
         'star_score': json_data.get('goodsReview', {}).get('satisfactionScore', 'N/A'),
         'review_count': json_data.get('goodsReview', {}).get('totalCount', 'N/A'),
         'product_url': product_url,
+        'brand_logo_url': json_data.get('brandInfo', {}).get('brandLogoImage', 'N/A'),
         'like_count': 0,  # 현재 like_count는 가상 데이터
     }
     
@@ -64,6 +65,7 @@ def extract_musinsa_product_main_info(product_num, session, headers):
         if not json_data:
             logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
             return None
+        print(json_data)
 
         return extract_product_info(json_data, product_num, product_url)
 
@@ -95,6 +97,7 @@ def print_product_main_data(products_info):
         print(f'좋아요 수: {product_info["like_count"]}')
         print(f'별점: {product_info["star_score"]}')
         print(f'리뷰 수: {product_info["review_count"]}')
+        print(f'로고 URL: {product_info["brand_logo_url"]}')
         print("---------------------------------------")
 
 def get_musinsa_product_info():
@@ -109,9 +112,10 @@ def get_musinsa_product_info():
     products_info = fetch_product_info_multithread(products_num, headers)
     end_time = time.time()
     
-    # print_product_main_data(products_info)
     logging.info(f'총 실행 시간: {end_time - start_time:.2f}초')
+    print_product_main_data(products_info)
     
+    # DB에 저장
     save_product_info(products_info)
 
 if __name__ == "__main__":
