@@ -25,6 +25,7 @@ class Product(Base):
     img_url = Column(String(200))
     name = Column(String(100))
     brand = Column(String(100))
+    brand_logo_url = Column(String(200))
     current_price = Column(Integer)
     star_score = Column(Float, nullable=True)
     review_count = Column(Integer, nullable=True)
@@ -41,6 +42,7 @@ def create_product(product):
         img_url=product['image_url']
         product_name = product['name']
         brand = product['brand']
+        brand_logo_url = product['brand_logo_url']
         current_price=int(product['current_price']) if product['current_price'] != 'N/A' else 0
         star_score = float(product.get('star_score', 0.0))
         review_count = int(product.get('review_count', 0))
@@ -54,6 +56,7 @@ def create_product(product):
             img_url=img_url,
             name=product_name,
             brand=brand,
+            brand_logo_url=brand_logo_url,
             current_price=current_price,
             star_score=star_score,
             review_count=review_count,
