@@ -15,6 +15,7 @@ from config.log import *
 from config.mysql import *
 from models.product import save_product_info
 from config.file import read_product_numbers
+from models.shop_type import ShopType
 
 # 지그재그 상품 기본 URL
 USER_AGENT = os.getenv("USER_AGENT")
@@ -201,7 +202,7 @@ def get_zigzag_product_info():
     print_product_main_data(products_info)
     
     # DB에 저장
-    # save_product_info(products_info)
+    save_product_info(products_info, ShopType.ZIGZAG)
 
 
 if __name__ == "__main__":

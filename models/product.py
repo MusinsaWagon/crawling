@@ -3,17 +3,11 @@ import datetime
 import logging
 from config.mysql import Base
 from config.mysql import Session
+from models.shop_type import ShopType
 from models.category import get_or_create_category
 from models.product_detail import create_product_detail, find_product_detail_by_id, update_product_detail_info
 from models.product_history import create_product_history, count_product_history_by_product_id
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from enum import Enum
-
-class ShopType(Enum):
-    MUSINSA = "MUSINSA"
-    ZIGZAG = "ZIGZAG"
-    ABLY = "ABLY"
-    BRANDY = "BRANDY"
 
 class Product(Base):
     __tablename__ = 'product'
@@ -35,7 +29,7 @@ class Product(Base):
     updated_at = Column(Date, default=datetime.date.today, onupdate=datetime.date.today)
     
 # 상품 생성
-def create_product(product):
+def create_product(product, shop_type):
     try:
         category_id = get_or_create_category(product['category'], product['parent_category'])
         product_num = int(product['product_num'])  
@@ -47,7 +41,7 @@ def create_product(product):
         star_score = float(product.get('star_score', 0.0))
         review_count = int(product.get('review_count', 0))
         like_count = int(product.get('like_count', 0))
-        shop_type = ShopType.MUSINSA
+        shop_type = shop_type
         
         # Product 객체 생성
         new_product = Product(
@@ -75,13 +69,13 @@ def create_product(product):
     
     
 # 상품 저장
-def save_product_info(products_info):
+def save_product_info(products_info, shop_type):
     session = Session()
     try:
         for product in products_info:
             try:
                 with session.begin(): 
-                    new_product = create_product(product)
+                    new_product = create_product(product, shop_type)
                     if new_product is None:
                         continue  # 생성 실패한 경우 다음으로 넘어감
                     

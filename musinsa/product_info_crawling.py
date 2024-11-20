@@ -15,12 +15,13 @@ from config.log import *
 from config.mysql import *
 from models.product import save_product_info
 from config.file import read_product_numbers
+from models.shop_type import ShopType
+
 
 # 무신사 상품 기본 URL
 USER_AGENT = os.getenv("USER_AGENT")
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
-ADD_PROUDCTS_LIST_FILE_PATH = os.getenv("ADD_PROUDCTS_LIST_FILE_PATH")
 
 load_dotenv() # 환경변수 로딩
    
@@ -113,7 +114,7 @@ def get_musinsa_product_info():
     print_product_main_data(products_info)
     
     # DB에 저장
-    save_product_info(products_info)
+    save_product_info(products_info, ShopType.MUSINSA)
 
 if __name__ == "__main__":
     get_musinsa_product_info()
