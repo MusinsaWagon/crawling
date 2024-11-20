@@ -31,21 +31,6 @@ def extract_json_from_script(script_content):
         return json.loads(script_content[json_start:json_end])
     return None
 
-def extract_product_info(json_data, product_num, product_url):
-    return {
-        'name': json_data.get('goodsNm', 'N/A'),
-        'brand': json_data.get('brandInfo', {}).get('brandName', 'N/A'),
-        'parent_category': json_data.get('category', {}).get('categoryDepth1Title', 'N/A'),
-        'category': json_data.get('category', {}).get('categoryDepth2Title', 'N/A'),
-        'product_num': product_num,
-        'current_price': json_data.get('goodsPrice', {}).get('salePrice', 'N/A'),
-        'image_url': json_data.get('thumbnailImageUrl', 'N/A'),
-        'star_score': json_data.get('goodsReview', {}).get('satisfactionScore', 'N/A'),
-        'review_count': json_data.get('goodsReview', {}).get('totalCount', 'N/A'),
-        'product_url': product_url,
-        'brand_logo_url': json_data.get('brandInfo', {}).get('brandLogoImage', 'N/A'),
-        'like_count': 0,  # 현재 like_count는 가상 데이터
-    }
     
 def extract_musinsa_product_main_info(product_num, session, headers):
     product_url = f'{MUSINSA_PRODUCT_URL}/{product_num}'
@@ -65,9 +50,21 @@ def extract_musinsa_product_main_info(product_num, session, headers):
         if not json_data:
             logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
             return None
-        print(json_data)
 
-        return extract_product_info(json_data, product_num, product_url)
+        return {
+            'name': json_data.get('goodsNm', 'N/A'),
+            'brand': json_data.get('brandInfo', {}).get('brandName', 'N/A'),
+            'parent_category': json_data.get('category', {}).get('categoryDepth1Title', 'N/A'),
+            'category': json_data.get('category', {}).get('categoryDepth2Title', 'N/A'),
+            'product_num': product_num,
+            'current_price': json_data.get('goodsPrice', {}).get('salePrice', 'N/A'),
+            'image_url': json_data.get('thumbnailImageUrl', 'N/A'),
+            'star_score': json_data.get('goodsReview', {}).get('satisfactionScore', 'N/A'),
+            'review_count': json_data.get('goodsReview', {}).get('totalCount', 'N/A'),
+            'product_url': product_url,
+            'brand_logo_url': json_data.get('brandInfo', {}).get('brandLogoImage', 'N/A'),
+            'like_count': 0,  # 현재 like_count는 가상 데이터
+        }
 
     except requests.RequestException as e:
         logging.error(f'페이지를 불러오지 못했습니다. 상품 번호: {product_num}, 오류: {e}')
