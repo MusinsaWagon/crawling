@@ -16,7 +16,9 @@ from config.mysql import *
 from models.product import save_product_info
 from config.file import read_product_numbers
 from models.shop_type import ShopType
-
+from models.product_registeration import get_init_carwling_product_numbers
+from models.product_registeration import Status, update_product_status
+import re
 
 # 무신사 상품 기본 URL
 USER_AGENT = os.getenv("USER_AGENT")
@@ -26,10 +28,13 @@ PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH")
 load_dotenv() # 환경변수 로딩
    
 def extract_json_from_script(script_content):
-    json_start = script_content.find('{"goodsNo":')
-    json_end = script_content.rfind('}') + 1
-    if json_start != -1 and json_end != -1:
-        return json.loads(script_content[json_start:json_end])
+    try:
+        match = re.search(r'(\{.*"goodsNo".*\})', script_content)
+        if match:
+            json_str = match.group(1)
+            return json.loads(json_str)
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON 파싱 오류: {e}")
     return None
 
     
@@ -44,14 +49,18 @@ def extract_musinsa_product_main_info(product_num, session, headers):
         script_tag = soup.find('script', string=lambda t: t and 'window.__MSS__.product.state' in t)
         if not script_tag:
             logging.warning(f'상품 정보를 찾을 수 없습니다. 상품 번호: {product_num}')
+            update_product_status(product_num, Status.FAIL)
             return None
 
         script_content = script_tag.string.strip()
         json_data = extract_json_from_script(script_content)
         if not json_data:
             logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
+            update_product_status(product_num, Status.FAIL)
             return None
 
+        # 성공 시 status를 SUCCESS로 변경
+        update_product_status(product_num, Status.SUCCESS)
         return {
             'name': json_data.get('goodsNm', 'N/A'),
             'brand': json_data.get('brandInfo', {}).get('brandName', 'N/A'),
@@ -69,8 +78,10 @@ def extract_musinsa_product_main_info(product_num, session, headers):
 
     except requests.RequestException as e:
         logging.error(f'페이지를 불러오지 못했습니다. 상품 번호: {product_num}, 오류: {e}')
+        update_product_status(product_num, Status.FAIL)
         return None
     
+
 def fetch_product_info_multithread(products_num, headers):
     products_info = []
     with requests.Session() as session:
@@ -99,13 +110,13 @@ def print_product_main_data(products_info):
         print("---------------------------------------")
 
 def get_musinsa_product_info():
-    products_num = read_product_numbers(PRODUCTS_FILE_PATH)
-    
+    # products_num = read_product_numbers(PRODUCTS_FILE_PATH)
+    products_num = get_init_carwling_product_numbers(ShopType.MUSINSA)
+     
     headers = {
         'User-Agent': USER_AGENT,
         "Connection": "close"
     }
- 
     start_time = time.time()
     products_info = fetch_product_info_multithread(products_num, headers)
     end_time = time.time()
@@ -114,7 +125,7 @@ def get_musinsa_product_info():
     print_product_main_data(products_info)
     
     # DB에 저장
-    # save_product_info(products_info, ShopType.MUSINSA)
+    save_product_info(products_info, ShopType.MUSINSA)
 
 if __name__ == "__main__":
     get_musinsa_product_info()

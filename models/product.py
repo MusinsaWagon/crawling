@@ -24,6 +24,8 @@ class Product(Base):
     star_score = Column(Float, nullable=True)
     review_count = Column(Integer, nullable=True)
     like_count = Column(Integer, nullable=True)
+    alarm_count = Column(Integer, nullable=True)
+    user_like_count = Column(Integer, nullable=True)
     shop_type = Column(SqlEnum(ShopType), nullable=False)
     created_at = Column(Date, default=datetime.date.today)
     updated_at = Column(Date, default=datetime.date.today, onupdate=datetime.date.today)
@@ -42,6 +44,8 @@ def create_product(product, shop_type):
         review_count = int(product.get('review_count', 0))
         like_count = int(product.get('like_count', 0))
         shop_type = shop_type
+        alarm_count = 0
+        user_like_count = 0
         
         # Product 객체 생성
         new_product = Product(
@@ -55,7 +59,9 @@ def create_product(product, shop_type):
             star_score=star_score,
             review_count=review_count,
             like_count=like_count,
-            shop_type=shop_type
+            shop_type=shop_type,
+            alarm_count=alarm_count,
+            user_like_count=user_like_count
         )
         return new_product
 
