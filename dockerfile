@@ -6,6 +6,8 @@ WORKDIR /app
 
 # 필요한 파일 복사
 COPY . .
+COPY .env.common /app/.env.common
+COPY .env.prod /app/.env.prod
 
 # 스크립트에 실행 권한 부여
 RUN chmod +x /app/scripts/deploy.sh

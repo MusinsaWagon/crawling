@@ -18,6 +18,10 @@ if [ ! -f "$MUSINSA_LOG_FILE" ]; then
   touch "$MUSINSA_LOG_FILE"
 fi
 
+# 환경 변수 파일 로드
+export $(grep -v '^#' /app/.env.common | xargs)
+export $(grep -v '^#' /app/.env.prod | xargs)
+
 # cronjob 추가 (오전 6시 한국 시간에 실행)
 echo "0 6 * * * root ENV=prod python /app/musinsa/product_day_price.py >> /app/log/musinsa_log.log 2>&1" >> /etc/crontab
 
