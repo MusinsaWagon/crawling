@@ -114,7 +114,7 @@ def get_musinsa_product_info():
     print_product_main_data(products_info)
     
     # DB에 저장
-    save_product_info(products_info, ShopType.MUSINSA)
+    # save_product_info(products_info, ShopType.MUSINSA)
 
 if __name__ == "__main__":
     get_musinsa_product_info()
