@@ -27,7 +27,6 @@ except ValueError:
     raise ValueError("MYSQL_PORT 환경변수 값이 잘못되었습니다. 정수 포트를 설정하세요.")
 MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
 
-
 # SQLAlchemy 설정
 DATABASE_URI = f'mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{DB_NAME}'
 engine = create_engine(DATABASE_URI, echo=True)
