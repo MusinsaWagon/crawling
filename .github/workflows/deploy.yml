@@ -17,10 +17,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       # 파이썬 설정
-      - name: Set up Python 
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.11  
+          python-version: 3.11
 
       - name: Execute SSH command on remote server
         uses: appleboy/ssh-action@master
@@ -37,9 +37,11 @@ jobs:
               git pull
             fi
             cd $HOME/app/musinsa-pricewagon
-            touch .env
-            echo "${{ secrets.ENV }}" >> .env
-    
+            touch .env.common
+            touch .env.prod
+            echo "${{ secrets.ENV_COMMON }}" >> .env.common
+            echo "${{ secrets.ENV_PROD }}" >> .env.prod
+
             sudo -S docker rm day-price-container --force  <<< "${{ secrets.SUDO_PASSWORD }}"
             sudo -S docker build -t rong5026/musinsa-pricewagon . <<< "${{ secrets.SUDO_PASSWORD }}"
             sudo -S docker run -d --name day-price-container -v $HOME/app/musinsa-pricewagon/log:/app/log --env-file=.env rong5026/musinsa-pricewagon <<< "${{ secrets.SUDO_PASSWORD }}"

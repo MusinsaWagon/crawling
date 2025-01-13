@@ -4,16 +4,25 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 from config.log import *
 from sqlalchemy.ext.declarative import declarative_base
+from pathlib import Path
 
 Base = declarative_base()
-load_dotenv() # 환경변수 로딩
 
+# 환경에 따라 다른 .env 파일 로드
+environment = os.getenv("ENV", "local")  # 기본값은 'local'
+if environment == "prod":
+    load_dotenv(".env.prod", override=True)
+    print("프로덕")
+else:
+    load_dotenv(".env.local", override=True)
+    print("로컬")
+    
 # MySQL 환경 변수 로딩
-DB_NAME = os.getenv("LOCAL_DB_NAME")
-MYSQL_HOST = os.getenv("LOCAL_MYSQL_HOST")
-MYSQL_PASSWORD = os.getenv("LOCAL_MYSQL_PASSWORD")
-MYSQL_PORT = os.getenv("LOCAL_MYSQL_PORT")
-MYSQL_USERNAME = os.getenv("LOCAL_MYSQL_USERNAME")
+DB_NAME = os.getenv("DB_NAME")
+MYSQL_HOST = os.getenv("MYSQL_HOST")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
+MYSQL_PORT = os.getenv("MYSQL_PORT")
+MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
 
 # SQLAlchemy 설정
 DATABASE_URI = f'mysql+pymysql://{MYSQL_USERNAME}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{DB_NAME}'

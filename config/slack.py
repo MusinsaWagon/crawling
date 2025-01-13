@@ -4,7 +4,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
-load_dotenv() # 환경변수 로딩
+# 공용 환경변수 로드
+load_dotenv(".env.common")
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 

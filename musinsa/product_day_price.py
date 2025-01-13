@@ -16,7 +16,7 @@ from models.product import update_product_and_history_and_detail_info, get_all_p
 import random
 import re
 
-load_dotenv()  # 환경변수 로딩
+load_dotenv(".env.common")
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
@@ -102,8 +102,8 @@ def send_result_to_slack(total_products, successful_products, failed_products):
 
 # 하루마다 상품 가격 받아오기
 def get_product_day_price():
-    products_num = get_all_product_numbers()
-    # products_num = read_product_numbers(PRODUCTS_FILE_PATH)
+    # products_num = get_all_product_numbers()
+    products_num = read_product_numbers(PRODUCTS_FILE_PATH)
     
     if not products_num:
         logging.warning("상품 번호가 없습니다. 프로그램을 종료합니다.")
