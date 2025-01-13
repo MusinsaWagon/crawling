@@ -21,7 +21,7 @@ else:
 DB_NAME = os.getenv("DB_NAME")
 MYSQL_HOST = os.getenv("MYSQL_HOST")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
-MYSQL_PORT = os.getenv("MYSQL_PORT")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT"))
 MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
 
 # SQLAlchemy 설정
