@@ -14,6 +14,7 @@ from config.slack import send_slack_message
 from config.file import read_product_numbers
 from models.product import update_product_and_history_and_detail_info, get_all_product_numbers
 import random
+import re
 
 load_dotenv()  # 환경변수 로딩
 
@@ -39,19 +40,14 @@ def extract_musinsa_current_price(product_num, headers):
         if script_tag:
              # script 내용 중 필요한 부분만 추출
             script_content = script_tag.string.strip()
-
-            # JSON 객체만 추출
-            json_start = script_content.find('{"goodsNo":')
-            json_end = script_content.rfind('}') + 1
-
-            # JSON 데이터가 올바르게 추출되었는지 확인
-            if json_start != -1 and json_end != -1:
-                json_data = json.loads(script_content[json_start:json_end])
-
-                # 판매가 추출
+            # 정규식으로 JSON 추출
+            match = re.search(r'window\.__MSS__\.product\.state\s*=\s*({.*?});', script_content)
+            if match:
+                json_str = match.group(1)  # 첫 번째 그룹이 JSON 문자열
+                json_data = json.loads(json_str)
                 current_price = json_data.get('goodsPrice', {}).get('salePrice', 'N/A')
                 return current_price
-
+            
             else:
                 logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
                 return None
@@ -73,7 +69,6 @@ def process_products(products_num):
         time.sleep(random.uniform(1, 3))  # 1초에서 3초 사이의 랜덤 딜레이
         
         price = extract_musinsa_current_price(product_id, headers)
-        
         if price:
             successful_products.append(f'상품 번호: {product_id}, 가격: {price}원')
             update_product_and_history_and_detail_info(price, product_id, "MUSINSA")
