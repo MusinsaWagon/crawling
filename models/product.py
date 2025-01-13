@@ -152,10 +152,10 @@ def update_product_and_history_and_detail_info(new_price, product_num, shop_type
         session.close() 
         
 # 모든 상품 번호 조회
-def get_all_product_numbers():
+def get_all_product_numbers(shop_type):
     session = Session()
     try:
-        products = session.query(Product).all()
+        products = session.query(Product).filter(Product.shop_type == shop_type).all()
         product_numbers = [product.product_num for product in products]
         return product_numbers
     except SQLAlchemyError as e:
