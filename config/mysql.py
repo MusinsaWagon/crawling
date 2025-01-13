@@ -21,7 +21,10 @@ else:
 DB_NAME = os.getenv("DB_NAME")
 MYSQL_HOST = os.getenv("MYSQL_HOST")
 MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
-MYSQL_PORT = int(os.getenv("MYSQL_PORT"))
+try:
+    MYSQL_PORT = int(os.getenv("MYSQL_PORT", "3306"))
+except ValueError:
+    raise ValueError("MYSQL_PORT 환경변수 값이 잘못되었습니다. 정수 포트를 설정하세요.")
 MYSQL_USERNAME = os.getenv("MYSQL_USERNAME")
 
 # SQLAlchemy 설정
