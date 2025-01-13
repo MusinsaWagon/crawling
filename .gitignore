@@ -27,3 +27,7 @@ replay_pid*
 .env
 chromedriver
 *.xlsx
+
+.env.common
+.env.local
+.env.prod
