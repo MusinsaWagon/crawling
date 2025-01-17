@@ -37,6 +37,10 @@ jobs:
               git pull
             fi
             cd $HOME/app/musinsa-pricewagon
+
+            touch .env.prod
+            echo "${{ secrets.ENV_PROD }}" >> .env.prod
+
             touch .env
             echo "${{ secrets.ENV_COMMON }}" >> .env
             echo "${{ secrets.ENV_PROD }}" >> .env
