@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 # 공용 환경변수 로드
-load_dotenv(".env.common")
+load_dotenv(".env")
 
 # 로그 파일 경로 설정
 LOG_FILE = os.getenv("LOG_FILE", "application.log")

@@ -15,7 +15,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 file_path = os.path.join(script_dir, '..', 'musinsa_product_ids.txt')
 
 
-load_dotenv()  # 환경변수 로딩
+load_dotenv(".env")  # 환경변수 로딩
 
 CHROMEDRIVER_PATH = os.getenv("CHROMEDRIVER_PATH")
 

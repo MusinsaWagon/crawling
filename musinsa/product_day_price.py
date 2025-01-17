@@ -17,7 +17,7 @@ import random
 import re
 from models.shop_type import ShopType
 
-load_dotenv(".env.common")
+load_dotenv(".env")
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")

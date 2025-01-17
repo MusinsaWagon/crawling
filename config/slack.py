@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 # 공용 환경변수 로드
-load_dotenv(".env.common", override=True)
+load_dotenv(".env")
 
 SLACK_WEBHOOK_URL = os.getenv("SLACK_WEBHOOK_URL")
 

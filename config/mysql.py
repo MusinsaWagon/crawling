@@ -8,13 +8,16 @@ from pathlib import Path
 
 Base = declarative_base()
 
+# 공용 환경변수 로드
+load_dotenv(".env")
+
 # 환경에 따라 다른 .env 파일 로드
-environment = os.getenv("ENV", "local")  # 기본값은 'local'
+environment = os.getenv("ENV")  # 배포 환경마다 다르게 설저
 if environment == "prod":
     load_dotenv(".env.prod", override=True)
     print("프로덕")
 else:
-    load_dotenv(".env.local", override=True)
+    load_dotenv(".env.dev", override=True)
     print("로컬")
     
 # MySQL 환경 변수 로딩
