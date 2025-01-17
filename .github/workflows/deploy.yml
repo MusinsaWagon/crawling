@@ -42,7 +42,7 @@ jobs:
             echo "${{ secrets.ENV_PROD }}" >> .env.prod
 
             touch .env
-            echo "${{ secrets.ENV_COMMON }}" >> .env
+            echo "${{ secrets.ENV }}" >> .env
             echo "${{ secrets.ENV_PROD }}" >> .env
 
             sudo -S docker rm day-price-container --force  <<< "${{ secrets.SUDO_PASSWORD }}"
