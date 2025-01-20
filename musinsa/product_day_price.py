@@ -17,7 +17,7 @@ import random
 import re
 from models.shop_type import ShopType
 
-load_dotenv(".env")
+load_dotenv()
 
 # 무신사 상품 기본 URL
 MUSINSA_PRODUCT_URL = os.getenv("MUSINSA_PRODUCT_URL")
@@ -85,8 +85,8 @@ def get_headers():
 
 # 하루마다 상품 가격 받아오기
 def get_product_day_price():
-    products_num = get_all_product_numbers(ShopType.MUSINSA)
-    # products_num = read_product_numbers(PRODUCTS_FILE_PATH)
+    # products_num = get_all_product_numbers(ShopType.MUSINSA)
+    products_num = read_product_numbers(PRODUCTS_FILE_PATH)
     
     if not products_num:
         logging.warning("상품 번호가 없습니다. 프로그램을 종료합니다.")

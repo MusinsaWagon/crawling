@@ -38,12 +38,8 @@ jobs:
             fi
             cd $HOME/app/musinsa-pricewagon
 
-            touch .env.prod
-            echo "${{ secrets.ENV_PROD }}" >> .env.prod
-
             touch .env
             echo "${{ secrets.ENV }}" >> .env
-            echo "${{ secrets.ENV_PROD }}" >> .env
 
             sudo -S docker rm day-price-container --force  <<< "${{ secrets.SUDO_PASSWORD }}"
             sudo -S docker build -t rong5026/musinsa-pricewagon . <<< "${{ secrets.SUDO_PASSWORD }}"
