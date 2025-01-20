@@ -9,7 +9,7 @@ from pathlib import Path
 Base = declarative_base()
 
 # 공용 환경변수 로드
-load_dotenv(".env")
+load_dotenv()
 
 # 환경에 따라 다른 .env 파일 로드
 environment = os.getenv("ENV")  # 배포 환경마다 다르게 설저
