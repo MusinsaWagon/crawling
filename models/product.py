@@ -7,6 +7,7 @@ from models.shop_type import ShopType
 from models.category import get_or_create_category
 from models.product_detail import create_product_detail, find_product_detail_by_id, update_product_detail_info
 from models.product_history import create_product_history, count_product_history_by_product_id
+from models.product_registeration import Status, update_product_status
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 class Product(Base):
@@ -97,6 +98,8 @@ def save_product_info(products_info, shop_type):
                     new_product_history = create_product_history(price, new_product)
                     session.add(new_product_history)
 
+                    # 성공 시 status를 SUCCESS로 변경
+                    update_product_status(new_product.product_num, Status.SUCCESS)
             except IntegrityError as ie:
                 session.rollback()  # 트랜잭션을 롤백하여 무결성 문제 해결
                 logging.error(f"중복 데이터로 인해 저장 실패: {product['product_num']}, 오류: {ie}")

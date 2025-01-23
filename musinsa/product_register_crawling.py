@@ -1,5 +1,7 @@
 import sys
 import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import requests
 import json
 import time
@@ -9,8 +11,6 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Pool, cpu_count
 from dotenv import load_dotenv
 import logging
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config.log import *
 from config.mysql import *
 from models.product import save_product_info
@@ -54,13 +54,12 @@ def extract_musinsa_product_main_info(product_num, session, headers):
 
         script_content = script_tag.string.strip()
         json_data = extract_json_from_script(script_content)
+        
         if not json_data:
             logging.warning(f'JSON 데이터를 추출할 수 없습니다. 상품 번호: {product_num}')
             update_product_status(product_num, Status.FAIL)
             return None
 
-        # 성공 시 status를 SUCCESS로 변경
-        update_product_status(product_num, Status.SUCCESS)
         return {
             'name': json_data.get('goodsNm', 'N/A'),
             'brand': json_data.get('brandInfo', {}).get('brandName', 'N/A'),
@@ -117,11 +116,8 @@ def get_musinsa_product_info():
         'User-Agent': USER_AGENT,
         "Connection": "close"
     }
-    start_time = time.time()
     products_info = fetch_product_info_multithread(products_num, headers)
-    end_time = time.time()
     
-    logging.info(f'총 실행 시간: {end_time - start_time:.2f}초')
     print_product_main_data(products_info)
     
     # DB에 저장
